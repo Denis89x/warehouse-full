@@ -29,6 +29,7 @@ public class OrderComposition {
     @JoinColumn(name = "store_id")
     private Store store;
 
+    @Column(name = "quantity", nullable = false)
     private Integer quantity;
 }
 
