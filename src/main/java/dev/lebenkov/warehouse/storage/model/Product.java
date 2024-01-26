@@ -1,7 +1,9 @@
 package dev.lebenkov.warehouse.storage.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -29,15 +31,14 @@ public class Product {
     @Column(name = "title")
     private String title;
 
-    @NotBlank(message = "Date should not be empty")
     @Column(name = "date")
     private LocalDateTime date;
 
     @Column(name = "presence")
     private Integer presence;
 
-    @NotBlank(message = "Cost should not be empty")
     @Max(value = 1000, message = "Cost cannot be more then 1000")
+    @Min(value = 0, message = "Cost cannot be litter then 0")
     @Column(name = "cost")
     private Integer cost;
 
@@ -48,6 +49,7 @@ public class Product {
     @JoinColumn(name = "product_type_id")
     private ProductType productType;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnore
+    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
     private List<OrderComposition> orderCompositions = new ArrayList<>();
 }

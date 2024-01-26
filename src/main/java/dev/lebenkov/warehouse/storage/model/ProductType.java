@@ -28,6 +28,6 @@ public class ProductType {
     @Column(name = "name")
     private String name;
 
-    @OneToMany(mappedBy = "productType", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "productType", fetch = FetchType.EAGER)
     private List<Product> products = new ArrayList<>();
 }
