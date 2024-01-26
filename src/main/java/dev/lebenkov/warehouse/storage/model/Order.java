@@ -38,6 +38,6 @@ public class Order {
     @JoinColumn(name = "supplier_id")
     private Supplier supplier;
 
-/*    @ManyToMany(mappedBy = "orders")
-    private List<Product> products = new ArrayList<>();*/
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<OrderComposition> orderCompositions = new ArrayList<>();
 }
