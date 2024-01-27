@@ -1,9 +1,12 @@
 package dev.lebenkov.warehouse.api.validation;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import dev.lebenkov.warehouse.api.util.exception.ProductNotFoundException;
 import dev.lebenkov.warehouse.api.util.exception.ProductTypeNotFoundException;
+import dev.lebenkov.warehouse.api.util.exception.StoreNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -52,6 +55,20 @@ public class ErrorHandlingControllerAdvice {
     @ExceptionHandler(ProductTypeNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String onProductTypeNotFoundException(ProductTypeNotFoundException e) {
+        return e.getMessage();
+    }
+
+    @ResponseBody
+    @ExceptionHandler(StoreNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String onStoreTypeNotFoundException(StoreNotFoundException e) {
+        return e.getMessage();
+    }
+
+    @ResponseBody
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String onInvalidJwtToken(AccessDeniedException e) {
         return e.getMessage();
     }
 }

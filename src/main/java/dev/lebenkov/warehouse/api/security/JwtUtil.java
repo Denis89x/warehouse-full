@@ -22,7 +22,7 @@ public class JwtUtil {
     String jwtSecret;
 
     public String generateToken(String username) {
-        Date expirationDate = Date.from(ZonedDateTime.now().plusMinutes(60).toInstant());
+        Date expirationDate = Date.from(ZonedDateTime.now().plusDays(7).toInstant());
 
         return JWT.create()
                 .withSubject("User details")
@@ -43,7 +43,7 @@ public class JwtUtil {
             DecodedJWT jwt = jwtVerifier.verify(token);
             return jwt.getClaim("username").asString();
         } catch (JWTVerificationException exception) {
-            throw new AccessDeniedException("Incorrect JWT Token");
+            throw new AccessDeniedException("Incorrect JWT Token", exception);
         }
     }
 }
