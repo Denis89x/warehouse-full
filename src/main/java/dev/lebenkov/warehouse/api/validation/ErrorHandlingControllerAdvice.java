@@ -4,6 +4,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import dev.lebenkov.warehouse.api.util.exception.ProductNotFoundException;
 import dev.lebenkov.warehouse.api.util.exception.ProductTypeNotFoundException;
 import dev.lebenkov.warehouse.api.util.exception.StoreNotFoundException;
+import dev.lebenkov.warehouse.api.util.exception.SupplierNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -66,9 +67,9 @@ public class ErrorHandlingControllerAdvice {
     }
 
     @ResponseBody
-    @ExceptionHandler(AccessDeniedException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String onInvalidJwtToken(AccessDeniedException e) {
+    @ExceptionHandler(SupplierNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String onSupplierTypeNotFoundException(SupplierNotFoundException e) {
         return e.getMessage();
     }
 }

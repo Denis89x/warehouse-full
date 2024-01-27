@@ -38,18 +38,18 @@ public class StoreController {
     @PostMapping
     public ResponseEntity<String> createStore(@RequestBody StoreRequest storeRequest) {
         storeCRUDService.saveStore(storeRequest);
-        return new ResponseEntity<>("Product  was successfully added", HttpStatus.CREATED);
+        return new ResponseEntity<>("Store  was successfully added", HttpStatus.CREATED);
     }
 
     @PatchMapping(STORE_ID)
     public ResponseEntity<String> updateStore(@PathVariable Long storeId, @RequestBody @Valid StoreRequest storeRequest) {
         storeCRUDService.editStore(storeId, storeRequest);
-        return new ResponseEntity<>("Product  was successfully changed", HttpStatus.OK);
+        return new ResponseEntity<>("Store was successfully changed", HttpStatus.OK);
     }
 
     @DeleteMapping(STORE_ID)
     public ResponseEntity<String> deleteStore(@PathVariable Long storeId) {
         storeCRUDService.deleteStore(storeId);
-        return new ResponseEntity<>("Product with " + storeId + " id was successfully deleted", HttpStatus.OK);
+        return new ResponseEntity<>("Store with " + storeId + " id was successfully deleted", HttpStatus.OK);
     }
 }
