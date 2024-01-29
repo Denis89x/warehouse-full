@@ -28,5 +28,5 @@ public class Store {
     private String name;
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<OrderComposition> orderCompositions = new ArrayList<>();
+    private List<Order> orders = new ArrayList<>();
 }

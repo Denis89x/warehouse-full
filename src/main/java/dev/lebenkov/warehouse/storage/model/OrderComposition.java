@@ -25,11 +25,6 @@ public class OrderComposition {
     @JoinColumn(name = "ord_id")
     private Order order;
 
-    @ManyToOne
-    @JoinColumn(name = "store_id")
-    private Store store;
-
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 }
-
