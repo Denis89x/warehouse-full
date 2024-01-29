@@ -1,8 +1,10 @@
 package dev.lebenkov.warehouse.api.service;
 
+import dev.lebenkov.warehouse.api.util.exception.OrderNotFoundException;
 import dev.lebenkov.warehouse.api.util.exception.ProductNotFoundException;
 import dev.lebenkov.warehouse.api.util.exception.StoreNotFoundException;
 import dev.lebenkov.warehouse.api.util.exception.SupplierNotFoundException;
+import dev.lebenkov.warehouse.storage.dto.OrderCompositionResponse;
 import dev.lebenkov.warehouse.storage.dto.OrderRequest;
 import dev.lebenkov.warehouse.storage.dto.OrderResponse;
 import dev.lebenkov.warehouse.storage.model.*;
@@ -36,7 +38,7 @@ public class OrderCRUDServiceImp implements OrderCRUDService {
         Order order = Order.builder()
                 .orderType(orderRequest.getOrderType())
                 .account(fetchAccount())
-                .amount(0) //
+                .amount(0)
                 .date(orderRequest.getOrderDate())
                 .store(findStoreById(orderRequest.getStoreId()))
                 .supplier(findSupplierById(orderRequest.getSupplierId()))
@@ -61,18 +63,23 @@ public class OrderCRUDServiceImp implements OrderCRUDService {
     }
 
     @Override
+    @Transactional
     public void deleteOrder(Long orderId) {
+        Order order = findOrderById(orderId);
 
+        order.getOrderCompositions().forEach(orderComposition -> orderCompositionRepository.deleteById(orderComposition.getOrderCompositionId()));
+
+        orderRepository.deleteById(orderId);
     }
 
     @Override
     public OrderResponse fetchOrder(Long orderId) {
-        return null;
+        return convertToOrderResponse(findOrderById(orderId));
     }
 
     @Override
     public List<OrderResponse> fetchAllOrders() {
-        return null;
+        return orderRepository.findAll().stream().map(this::convertToOrderResponse).toList();
     }
 
     private Account fetchAccount() {
@@ -93,5 +100,27 @@ public class OrderCRUDServiceImp implements OrderCRUDService {
     private Product findProductById(Long productId) {
         return productRepository.findById(productId).orElseThrow(() ->
                 new ProductNotFoundException("Product with id " + productId + " not found"));
+    }
+
+    private Order findOrderById(Long orderId) {
+        return orderRepository.findById(orderId).orElseThrow(() ->
+                new OrderNotFoundException("Order with " + orderId + " id not found"));
+    }
+
+    private OrderResponse convertToOrderResponse(Order order) {
+        return OrderResponse.builder()
+                .orderType(order.getOrderType())
+                .orderDate(order.getDate())
+                .amount(order.getAmount())
+                .storeName(order.getStore().getName())
+                .orderCompositionResponses(order.getOrderCompositions().stream().map(this::convertToOrderCompositionResponse).toList())
+                .build();
+    }
+
+    private OrderCompositionResponse convertToOrderCompositionResponse(OrderComposition orderComposition) {
+        return OrderCompositionResponse.builder()
+                .productName(orderComposition.getProduct().getTitle())
+                .quantity(orderComposition.getQuantity())
+                .build();
     }
 }

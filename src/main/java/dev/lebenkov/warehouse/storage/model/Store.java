@@ -27,6 +27,6 @@ public class Store {
     @Column(name = "name")
     private String name;
 
-    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "store", fetch = FetchType.EAGER)
     private List<Order> orders = new ArrayList<>();
 }

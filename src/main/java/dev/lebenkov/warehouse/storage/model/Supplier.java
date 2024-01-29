@@ -42,6 +42,6 @@ public class Supplier {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "supplier", fetch = FetchType.EAGER)
     private List<Order> orders = new ArrayList<>();
 }

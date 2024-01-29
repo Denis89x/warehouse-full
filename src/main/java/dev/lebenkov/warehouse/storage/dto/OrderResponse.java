@@ -1,10 +1,12 @@
 package dev.lebenkov.warehouse.storage.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Builder
 @Data
 public class OrderResponse {
     private String orderType;
@@ -13,7 +15,7 @@ public class OrderResponse {
 
     private Integer amount;
 
-    private Long storeId;
+    private String storeName;
 
-    private List<OrderCompositionRequest> orderCompositionRequestList;
+    private List<OrderCompositionResponse> orderCompositionResponses;
 }

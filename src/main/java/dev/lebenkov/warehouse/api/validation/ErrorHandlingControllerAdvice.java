@@ -1,13 +1,8 @@
 package dev.lebenkov.warehouse.api.validation;
 
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import dev.lebenkov.warehouse.api.util.exception.ProductNotFoundException;
-import dev.lebenkov.warehouse.api.util.exception.ProductTypeNotFoundException;
-import dev.lebenkov.warehouse.api.util.exception.StoreNotFoundException;
-import dev.lebenkov.warehouse.api.util.exception.SupplierNotFoundException;
+import dev.lebenkov.warehouse.api.util.exception.*;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -48,7 +43,7 @@ public class ErrorHandlingControllerAdvice {
     @ResponseBody
     @ExceptionHandler(ProductNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String onMethodArgumentNotFoundException(ProductNotFoundException e) {
+    public String onProductNotFoundException(ProductNotFoundException e) {
         return e.getMessage();
     }
 
@@ -62,14 +57,21 @@ public class ErrorHandlingControllerAdvice {
     @ResponseBody
     @ExceptionHandler(StoreNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String onStoreTypeNotFoundException(StoreNotFoundException e) {
+    public String onStoreNotFoundException(StoreNotFoundException e) {
         return e.getMessage();
     }
 
     @ResponseBody
     @ExceptionHandler(SupplierNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String onSupplierTypeNotFoundException(SupplierNotFoundException e) {
+    public String onSupplierNotFoundException(SupplierNotFoundException e) {
+        return e.getMessage();
+    }
+
+    @ResponseBody
+    @ExceptionHandler(OrderNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String onOrderNotFoundException(OrderNotFoundException e) {
         return e.getMessage();
     }
 }

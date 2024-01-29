@@ -51,6 +51,6 @@ public class Account {
     @Column(name = "role")
     private String role;
 
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     private List<Order> orders = new ArrayList<>();
 }
