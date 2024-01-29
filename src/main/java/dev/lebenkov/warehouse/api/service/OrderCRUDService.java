@@ -8,8 +8,6 @@ import java.util.List;
 public interface OrderCRUDService {
     void saveOrder(OrderRequest orderRequest);
 
-    void editOrder(Long orderId);
-
     void deleteOrder(Long orderId);
 
     OrderResponse fetchOrder(Long orderId);

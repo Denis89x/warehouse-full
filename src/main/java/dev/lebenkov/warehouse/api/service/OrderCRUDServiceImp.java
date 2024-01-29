@@ -58,11 +58,6 @@ public class OrderCRUDServiceImp implements OrderCRUDService {
     }
 
     @Override
-    public void editOrder(Long orderId) {
-
-    }
-
-    @Override
     @Transactional
     public void deleteOrder(Long orderId) {
         Order order = findOrderById(orderId);
