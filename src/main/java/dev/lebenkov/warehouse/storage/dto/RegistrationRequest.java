@@ -9,9 +9,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AccountRequestLogin {
+public class RegistrationRequest {
 
     private String username;
 
     private String password;
+
+    private String email;
+
+    private String firstname;
+
+    private String surname;
 }

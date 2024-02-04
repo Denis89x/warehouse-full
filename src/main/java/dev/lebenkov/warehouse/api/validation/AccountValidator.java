@@ -1,7 +1,7 @@
 package dev.lebenkov.warehouse.api.validation;
 
 import dev.lebenkov.warehouse.api.service.AccountDetailsService;
-import dev.lebenkov.warehouse.storage.dto.AccountRequestRegistration;
+import dev.lebenkov.warehouse.storage.dto.RegistrationRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -19,12 +19,12 @@ public class AccountValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return AccountRequestRegistration.class.equals(clazz);
+        return RegistrationRequest.class.equals(clazz);
     }
 
     @Override
     public void validate(Object target, Errors errors) {
-        AccountRequestRegistration person = (AccountRequestRegistration) target;
+        RegistrationRequest person = (RegistrationRequest) target;
 
         try {
             accountDetailsService.loadUserByUsername(person.getUsername());
