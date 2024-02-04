@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 @ToString
 public class ProductResponse {
 
+    private Long productId;
+
     private String title;
 
     private LocalDateTime date;

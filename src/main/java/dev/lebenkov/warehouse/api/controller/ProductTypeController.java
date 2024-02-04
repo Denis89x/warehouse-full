@@ -19,6 +19,7 @@ import java.util.List;
 @Validated
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*", allowedHeaders = "*", maxAge = 30)
 @RequestMapping("/api/v1/types")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductTypeController {

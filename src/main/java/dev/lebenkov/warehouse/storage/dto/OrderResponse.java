@@ -9,6 +9,8 @@ import java.util.List;
 @Builder
 @Data
 public class OrderResponse {
+    private Long orderId;
+
     private String orderType;
 
     private LocalDateTime orderDate;

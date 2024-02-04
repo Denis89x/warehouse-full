@@ -104,6 +104,7 @@ public class OrderCRUDServiceImp implements OrderCRUDService {
 
     private OrderResponse convertToOrderResponse(Order order) {
         return OrderResponse.builder()
+                .orderId(order.getOrderId())
                 .orderType(order.getOrderType())
                 .orderDate(order.getDate())
                 .amount(order.getAmount())
