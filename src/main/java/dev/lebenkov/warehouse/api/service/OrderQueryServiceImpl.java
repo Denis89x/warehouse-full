@@ -1,5 +1,6 @@
 package dev.lebenkov.warehouse.api.service;
 
+import dev.lebenkov.warehouse.storage.dto.DateFilterRequest;
 import dev.lebenkov.warehouse.storage.dto.OrderCompositionResponse;
 import dev.lebenkov.warehouse.storage.dto.OrderResponse;
 import dev.lebenkov.warehouse.storage.model.Order;
@@ -24,6 +25,12 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     @Override
     public List<OrderResponse> findSimilarOrder(String field) {
         return orderRepository.findSimilarOrder(field).stream().map(this::convertToOrderResponse).toList();
+    }
+
+    @Override
+    public List<OrderResponse> findOrdersByDateRange(DateFilterRequest dateFilterRequest) {
+        return orderRepository.findByDateRange(dateFilterRequest.getStartDate(), dateFilterRequest.getEndDate()).stream()
+                .map(this::convertToOrderResponse).toList();
     }
 
     private OrderResponse convertToOrderResponse(Order order) {

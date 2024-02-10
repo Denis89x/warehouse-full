@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -21,4 +22,12 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                     "   o.supplier.title ILIKE %:keyword%"
     )
     List<Order> findSimilarOrder(String keyword);
+
+    @Query(value =
+            "SELECT o " +
+                    "FROM Order o " +
+                    "WHERE " +
+                    "   o.date BETWEEN :startDate AND :endDate"
+    )
+    List<Order> findByDateRange(LocalDateTime startDate, LocalDateTime endDate);
 }

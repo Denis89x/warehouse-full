@@ -2,6 +2,7 @@ package dev.lebenkov.warehouse.api.controller;
 
 import dev.lebenkov.warehouse.api.service.ProductCRUDService;
 import dev.lebenkov.warehouse.api.service.ProductQueryService;
+import dev.lebenkov.warehouse.storage.dto.DateFilterRequest;
 import dev.lebenkov.warehouse.storage.dto.ProductRequest;
 import dev.lebenkov.warehouse.storage.dto.ProductResponse;
 import jakarta.validation.Valid;
@@ -29,6 +30,7 @@ public class ProductController {
 
     private final static String PRODUCT_ID = "/{productId}";
     private final static String PRODUCT_FIELD = "/search/{productField}";
+    private final static String PRODUCT_FILTRATE = "/filter";
 
     @GetMapping(PRODUCT_ID)
     public ResponseEntity<ProductResponse> fetchProduct(@PathVariable Long productId) {
@@ -43,6 +45,11 @@ public class ProductController {
     @GetMapping(PRODUCT_FIELD)
     public ResponseEntity<List<ProductResponse>> findSimilarProducts(@PathVariable String productField) {
         return new ResponseEntity<>(productQueryService.findSimilarProducts(productField), HttpStatus.OK);
+    }
+
+    @GetMapping(PRODUCT_FILTRATE)
+    public ResponseEntity<List<ProductResponse>> findProductsByDateRange(@RequestBody DateFilterRequest dateFilterRequest) {
+        return new ResponseEntity<>(productQueryService.findProductsByDateRange(dateFilterRequest), HttpStatus.OK);
     }
 
     @PostMapping

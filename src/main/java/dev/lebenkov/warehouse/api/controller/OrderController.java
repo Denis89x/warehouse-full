@@ -2,6 +2,7 @@ package dev.lebenkov.warehouse.api.controller;
 
 import dev.lebenkov.warehouse.api.service.OrderCRUDService;
 import dev.lebenkov.warehouse.api.service.OrderQueryService;
+import dev.lebenkov.warehouse.storage.dto.DateFilterRequest;
 import dev.lebenkov.warehouse.storage.dto.OrderRequest;
 import dev.lebenkov.warehouse.storage.dto.OrderResponse;
 import jakarta.validation.Valid;
@@ -29,6 +30,7 @@ public class OrderController {
 
     private final static String ORDER_ID = "/{orderId}";
     private final static String ORDER_FIELD = "/search/{orderField}";
+    private final static String ORDER_FILTER = "/filter";
 
     @PostMapping
     public ResponseEntity<String> createOrder(@RequestBody @Valid OrderRequest orderRequest) {
@@ -49,6 +51,11 @@ public class OrderController {
     @GetMapping(ORDER_FIELD)
     public ResponseEntity<List<OrderResponse>> findSimilarOrder(@PathVariable String orderField) {
         return new ResponseEntity<>(orderQueryService.findSimilarOrder(orderField), HttpStatus.OK);
+    }
+
+    @GetMapping(ORDER_FILTER)
+    public ResponseEntity<List<OrderResponse>> findOrdersByDateRange(@RequestBody DateFilterRequest dateFilterRequest) {
+        return new ResponseEntity<>(orderQueryService.findOrdersByDateRange(dateFilterRequest), HttpStatus.OK);
     }
 
     @DeleteMapping(ORDER_ID)
