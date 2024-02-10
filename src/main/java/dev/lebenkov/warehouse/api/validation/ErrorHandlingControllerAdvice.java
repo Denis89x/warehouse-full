@@ -74,4 +74,25 @@ public class ErrorHandlingControllerAdvice {
     public String onOrderNotFoundException(OrderNotFoundException e) {
         return e.getMessage();
     }
+
+    @ResponseBody
+    @ExceptionHandler(AccountAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String onAccountExistsException(AccountAlreadyExistsException e) {
+        return e.getMessage();
+    }
+
+    @ResponseBody
+    @ExceptionHandler(AccountNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String onAccountNotFoundException(AccountNotFoundException e) {
+        return e.getMessage();
+    }
+
+    @ResponseBody
+    @ExceptionHandler(EmptyOrderCompositionException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String onEmptyOrderCompositionException(EmptyOrderCompositionException e) {
+        return e.getMessage();
+    }
 }

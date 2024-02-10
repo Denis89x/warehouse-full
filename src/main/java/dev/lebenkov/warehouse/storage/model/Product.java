@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@ToString
 @Entity
 @Table(name = "product")
 @Getter
@@ -49,6 +50,7 @@ public class Product {
     @JoinColumn(name = "product_type_id")
     private ProductType productType;
 
+    @ToString.Exclude
     @JsonIgnore
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
     private List<OrderComposition> orderCompositions = new ArrayList<>();

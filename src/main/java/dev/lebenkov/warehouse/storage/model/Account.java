@@ -38,16 +38,6 @@ public class Account {
     @Column(name = "password")
     private String password;
 
-    @NotBlank(message = "Firstname should not be empty")
-    @Size(min = 2, max = 30, message = "Firstname should be 2 - 30 symbols size")
-    @Column(name = "firstname")
-    private String firstname;
-
-    @NotBlank(message = "Surname should not be empty")
-    @Size(min = 3, max = 30, message = "Surname should be 3 - 30 symbols size")
-    @Column(name = "surname")
-    private String surname;
-
     @Column(name = "role")
     private String role;
 

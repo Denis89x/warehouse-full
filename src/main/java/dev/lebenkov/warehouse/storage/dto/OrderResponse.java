@@ -19,5 +19,7 @@ public class OrderResponse {
 
     private String storeName;
 
+    private String supplierTitle;
+
     private List<OrderCompositionResponse> orderCompositionResponses;
 }

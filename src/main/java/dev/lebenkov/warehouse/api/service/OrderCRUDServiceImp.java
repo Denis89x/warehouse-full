@@ -1,9 +1,6 @@
 package dev.lebenkov.warehouse.api.service;
 
-import dev.lebenkov.warehouse.api.util.exception.OrderNotFoundException;
-import dev.lebenkov.warehouse.api.util.exception.ProductNotFoundException;
-import dev.lebenkov.warehouse.api.util.exception.StoreNotFoundException;
-import dev.lebenkov.warehouse.api.util.exception.SupplierNotFoundException;
+import dev.lebenkov.warehouse.api.util.exception.*;
 import dev.lebenkov.warehouse.storage.dto.OrderCompositionResponse;
 import dev.lebenkov.warehouse.storage.dto.OrderRequest;
 import dev.lebenkov.warehouse.storage.dto.OrderResponse;
@@ -35,6 +32,10 @@ public class OrderCRUDServiceImp implements OrderCRUDService {
     @Override
     @Transactional
     public void saveOrder(OrderRequest orderRequest) {
+        if (orderRequest.getOrderCompositionRequestList().isEmpty()) {
+            throw new EmptyOrderCompositionException("Unable to create an order with an empty list of products");
+        }
+
         Order order = Order.builder()
                 .orderType(orderRequest.getOrderType())
                 .account(fetchAccount())
@@ -109,6 +110,7 @@ public class OrderCRUDServiceImp implements OrderCRUDService {
                 .orderDate(order.getDate())
                 .amount(order.getAmount())
                 .storeName(order.getStore().getName())
+                .supplierTitle(order.getSupplier().getTitle())
                 .orderCompositionResponses(order.getOrderCompositions().stream().map(this::convertToOrderCompositionResponse).toList())
                 .build();
     }

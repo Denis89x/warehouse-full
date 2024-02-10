@@ -1,6 +1,7 @@
 package dev.lebenkov.warehouse.api.controller;
 
 import dev.lebenkov.warehouse.api.service.SupplierCRUDService;
+import dev.lebenkov.warehouse.api.service.SupplierQueryService;
 import dev.lebenkov.warehouse.storage.dto.SupplierRequest;
 import dev.lebenkov.warehouse.storage.dto.SupplierResponse;
 import jakarta.validation.Valid;
@@ -10,11 +11,13 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Slf4j
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/suppliers")
@@ -22,8 +25,10 @@ import java.util.List;
 public class SupplierController {
 
     SupplierCRUDService supplierCRUDService;
+    SupplierQueryService supplierQueryService;
 
     private static final String SUPPLIER_ID = "/{supplierId}";
+    private static final String SUPPLIER_FIELD = "/search/{supplierField}";
 
     @GetMapping(SUPPLIER_ID)
     public ResponseEntity<SupplierResponse> fetchSupplier(@PathVariable Long supplierId) {
@@ -35,8 +40,13 @@ public class SupplierController {
         return new ResponseEntity<>(supplierCRUDService.fetchAllSuppliers(), HttpStatus.OK);
     }
 
+    @GetMapping(SUPPLIER_FIELD)
+    public ResponseEntity<List<SupplierResponse>> findSimilarSupplier(@PathVariable String supplierField) {
+        return new ResponseEntity<>(supplierQueryService.findSimilarSupplier(supplierField), HttpStatus.OK);
+    }
+
     @PostMapping
-    public ResponseEntity<String> createSupplier(@RequestBody SupplierRequest supplierRequest) {
+    public ResponseEntity<String> createSupplier(@RequestBody @Valid SupplierRequest supplierRequest) {
         supplierCRUDService.saveSupplier(supplierRequest);
         return new ResponseEntity<>("Supplier was successfully added", HttpStatus.CREATED);
     }

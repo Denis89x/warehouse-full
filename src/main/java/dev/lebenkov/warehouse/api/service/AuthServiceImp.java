@@ -2,6 +2,9 @@ package dev.lebenkov.warehouse.api.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.lebenkov.warehouse.api.security.JwtUtil;
+import dev.lebenkov.warehouse.api.util.exception.AccountAlreadyExistsException;
+import dev.lebenkov.warehouse.api.util.exception.AccountNotFoundException;
+import dev.lebenkov.warehouse.api.validation.Violation;
 import dev.lebenkov.warehouse.storage.dto.AuthRequest;
 import dev.lebenkov.warehouse.storage.dto.AuthResponse;
 import dev.lebenkov.warehouse.storage.dto.RegistrationRequest;
@@ -44,10 +47,13 @@ public class AuthServiceImp implements AuthService {
     @Override
     @Transactional
     public AuthResponse register(RegistrationRequest registrationRequest) {
+        accountRepository.findByUsername(registrationRequest.getUsername())
+                .ifPresent(existingAccount -> {
+                    throw new AccountAlreadyExistsException("Account with username " + registrationRequest.getUsername() + " already exists.");
+                });
+
         Account account = Account.builder()
                 .username(registrationRequest.getUsername())
-                .firstname(registrationRequest.getFirstname())
-                .surname(registrationRequest.getSurname())
                 .email(registrationRequest.getEmail())
                 .password(passwordEncoder.encode(registrationRequest.getPassword()))
                 .role("ROLE_USER")
@@ -68,6 +74,9 @@ public class AuthServiceImp implements AuthService {
 
     @Override
     public AuthResponse authenticate(AuthRequest authRequest) {
+        Account account = accountRepository.findByUsername(authRequest.getUsername()).orElseThrow(() ->
+                new AccountNotFoundException("Account with username " + authRequest.getUsername() + " not found"));
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         authRequest.getUsername(),
@@ -76,7 +85,6 @@ public class AuthServiceImp implements AuthService {
         );
 
         UserDetails user = accountDetailsService.loadUserByUsername(authRequest.getUsername());
-        Account account = accountRepository.findByUsername(authRequest.getUsername()).orElseThrow();
 
         String jwtToken = jwtUtil.generateToken(user);
         String refreshToken = jwtUtil.generateRefreshToken(user);
