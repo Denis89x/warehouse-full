@@ -1,6 +1,5 @@
 package dev.lebenkov.warehouse.api.service;
 
-import dev.lebenkov.warehouse.storage.dto.DateFilterRequest;
 import dev.lebenkov.warehouse.storage.dto.OrderCompositionResponse;
 import dev.lebenkov.warehouse.storage.dto.OrderResponse;
 import dev.lebenkov.warehouse.storage.model.Order;
@@ -12,6 +11,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -28,8 +28,8 @@ public class OrderQueryServiceImpl implements OrderQueryService {
     }
 
     @Override
-    public List<OrderResponse> findOrdersByDateRange(DateFilterRequest dateFilterRequest) {
-        return orderRepository.findByDateRange(dateFilterRequest.getStartDate(), dateFilterRequest.getEndDate()).stream()
+    public List<OrderResponse> findOrdersByDateRange(LocalDate startDate, LocalDate endDate) {
+        return orderRepository.findByDateRange(startDate, endDate).stream()
                 .map(this::convertToOrderResponse).toList();
     }
 

@@ -2,7 +2,6 @@ package dev.lebenkov.warehouse.api.controller;
 
 import dev.lebenkov.warehouse.api.service.OrderCRUDService;
 import dev.lebenkov.warehouse.api.service.OrderQueryService;
-import dev.lebenkov.warehouse.storage.dto.DateFilterRequest;
 import dev.lebenkov.warehouse.storage.dto.OrderRequest;
 import dev.lebenkov.warehouse.storage.dto.OrderResponse;
 import jakarta.validation.Valid;
@@ -10,11 +9,13 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -54,8 +55,10 @@ public class OrderController {
     }
 
     @GetMapping(ORDER_FILTER)
-    public ResponseEntity<List<OrderResponse>> findOrdersByDateRange(@RequestBody DateFilterRequest dateFilterRequest) {
-        return new ResponseEntity<>(orderQueryService.findOrdersByDateRange(dateFilterRequest), HttpStatus.OK);
+    public ResponseEntity<List<OrderResponse>> findOrdersByDateRange(
+            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
+        return new ResponseEntity<>(orderQueryService.findOrdersByDateRange(startDate, endDate), HttpStatus.OK);
     }
 
     @DeleteMapping(ORDER_ID)

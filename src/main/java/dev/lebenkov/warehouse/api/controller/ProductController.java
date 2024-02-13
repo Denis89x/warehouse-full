@@ -2,7 +2,6 @@ package dev.lebenkov.warehouse.api.controller;
 
 import dev.lebenkov.warehouse.api.service.ProductCRUDService;
 import dev.lebenkov.warehouse.api.service.ProductQueryService;
-import dev.lebenkov.warehouse.storage.dto.DateFilterRequest;
 import dev.lebenkov.warehouse.storage.dto.ProductRequest;
 import dev.lebenkov.warehouse.storage.dto.ProductResponse;
 import jakarta.validation.Valid;
@@ -10,11 +9,13 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -48,8 +49,10 @@ public class ProductController {
     }
 
     @GetMapping(PRODUCT_FILTRATE)
-    public ResponseEntity<List<ProductResponse>> findProductsByDateRange(@RequestBody DateFilterRequest dateFilterRequest) {
-        return new ResponseEntity<>(productQueryService.findProductsByDateRange(dateFilterRequest), HttpStatus.OK);
+    public ResponseEntity<List<ProductResponse>> findProductsByDateRange(
+            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
+        return new ResponseEntity<>(productQueryService.findProductsByDateRange(startDate, endDate), HttpStatus.OK);
     }
 
     @PostMapping

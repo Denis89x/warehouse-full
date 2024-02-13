@@ -3,7 +3,7 @@ package dev.lebenkov.warehouse.storage.dto;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Builder
@@ -13,7 +13,7 @@ public class OrderResponse {
 
     private String orderType;
 
-    private LocalDateTime orderDate;
+    private LocalDate orderDate;
 
     private Integer amount;
 

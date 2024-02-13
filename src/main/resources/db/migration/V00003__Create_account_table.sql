@@ -5,7 +5,5 @@ create table if not exists account
     username   varchar(20) not null,
     email      varchar(30) not null,
     password   varchar     not null,
-    firstname  varchar(30) not null,
-    surname    varchar(30) not null,
     role       varchar
 );

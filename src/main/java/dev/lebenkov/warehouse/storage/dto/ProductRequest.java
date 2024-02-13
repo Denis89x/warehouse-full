@@ -2,9 +2,8 @@ package dev.lebenkov.warehouse.storage.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 public class ProductRequest {
@@ -15,7 +14,7 @@ public class ProductRequest {
     private String title;
 
     @FutureOrPresent(message = "The date can't be earlier than today")
-    private LocalDateTime date;
+    private LocalDate date;
 
     @Max(value = 1000, message = "Cost cannot be more than 1000")
     @Min(value = 50, message = "Cost cannot be litter than 50")
