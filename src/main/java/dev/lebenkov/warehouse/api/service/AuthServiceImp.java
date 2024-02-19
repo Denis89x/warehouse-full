@@ -53,7 +53,7 @@ public class AuthServiceImp implements AuthService {
                 });
 
         Account account = Account.builder()
-                .username(registrationRequest.getUsername())
+                .username(registrationRequest.getUsername().toLowerCase())
                 .email(registrationRequest.getEmail())
                 .password(passwordEncoder.encode(registrationRequest.getPassword()))
                 .role("ROLE_USER")

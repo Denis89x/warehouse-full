@@ -108,6 +108,7 @@ public class OrderCRUDServiceImp implements OrderCRUDService {
                 .orderId(order.getOrderId())
                 .orderType(order.getOrderType())
                 .orderDate(order.getDate())
+                .username(order.getAccount().getUsername())
                 .amount(order.getAmount())
                 .storeName(order.getStore().getName())
                 .supplierTitle(order.getSupplier().getTitle())

@@ -17,6 +17,8 @@ public class OrderResponse {
 
     private Integer amount;
 
+    private String username;
+
     private String storeName;
 
     private String supplierTitle;

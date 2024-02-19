@@ -30,4 +30,21 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                     "   o.date BETWEEN :startDate AND :endDate"
     )
     List<Order> findByDateRange(LocalDate startDate, LocalDate endDate);
+
+    List<Order> findOrdersByAccount_Username(String username);
+
+    @Query(value =
+            "SELECT o " +
+                    "FROM Order o " +
+                    "WHERE " +
+                    "   o.supplier.supplierId = :supplierId " +
+                    "   AND o.orderType = :orderType " +
+                    "   AND o.date BETWEEN :startDate AND :endDate"
+    )
+    List<Order> findOrdersBySupplierIdAndOrderTypeAndDateBetween(
+            Long supplierId,
+            String orderType,
+            LocalDate startDate,
+            LocalDate endDate
+    );
 }

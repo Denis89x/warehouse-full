@@ -33,12 +33,25 @@ public class OrderQueryServiceImpl implements OrderQueryService {
                 .map(this::convertToOrderResponse).toList();
     }
 
+    @Override
+    public List<OrderResponse> findOrdersByUsername(String username) {
+        return orderRepository.findOrdersByAccount_Username(username.toLowerCase()).stream()
+                .map(this::convertToOrderResponse).toList();
+    }
+
+    @Override
+    public List<OrderResponse> findOrderByTypeAndSupplier(Long supplierId, LocalDate startDate, LocalDate endDate) {
+        return orderRepository.findOrdersBySupplierIdAndOrderTypeAndDateBetween(supplierId, "Поступление", startDate, endDate).stream()
+                .map(this::convertToOrderResponse).toList();
+    }
+
     private OrderResponse convertToOrderResponse(Order order) {
         return OrderResponse.builder()
                 .orderId(order.getOrderId())
                 .orderType(order.getOrderType())
                 .orderDate(order.getDate())
                 .amount(order.getAmount())
+                .username(order.getAccount().getUsername())
                 .storeName(order.getStore().getName())
                 .supplierTitle(order.getSupplier().getTitle())
                 .orderCompositionResponses(order.getOrderCompositions().stream().map(this::convertToOrderCompositionResponse).toList())
