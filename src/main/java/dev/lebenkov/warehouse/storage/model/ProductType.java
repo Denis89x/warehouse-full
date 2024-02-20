@@ -23,8 +23,8 @@ public class ProductType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long productTypeId;
 
-    @NotBlank(message = "Name should not be empty")
-    @Size(min = 3, max = 50, message = "Name should be 3 - 50 symbols size")
+/*    @NotBlank(message = "Name should not be empty")
+    @Size(min = 3, max = 50, message = "Name should be 3 - 50 symbols size")*/
     @Column(name = "name")
     private String name;
 

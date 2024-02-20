@@ -8,10 +8,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@ToString
 @Entity
 @Table(name = "product")
 @Getter
@@ -32,7 +33,7 @@ public class Product {
     private String title;
 
     @Column(name = "date")
-    private LocalDateTime date;
+    private LocalDate date;
 
     @Column(name = "presence")
     private Integer presence;
@@ -49,6 +50,7 @@ public class Product {
     @JoinColumn(name = "product_type_id")
     private ProductType productType;
 
+    @ToString.Exclude
     @JsonIgnore
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
     private List<OrderComposition> orderCompositions = new ArrayList<>();

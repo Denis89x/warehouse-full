@@ -1,24 +1,23 @@
 package dev.lebenkov.warehouse.storage.dto;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 public class ProductRequest {
 
-    @NotBlank(message = "Title should not be empty")
-    @Size(min = 3, max = 50, message = "Title should be 3 - 50 symbols size")
+    @NotBlank(message = "Title must not be empty")
+    @Size(min = 3, max = 50, message = "Title must be between 3 and 50 characters long")
+    @Pattern(regexp = "^(?=.*[a-zA-Z])[a-zA-Z0-9\\s\\-]+$", message = "Incorrect title")
     private String title;
 
-    private LocalDateTime date;
+    @FutureOrPresent(message = "The date can't be earlier than today")
+    private LocalDate date;
 
-    @Max(value = 1000, message = "Cost cannot be more then 1000")
-    @Min(value = 0, message = "Cost cannot be litter then 0")
+    @Max(value = 1000, message = "Cost cannot be more than 1000")
+    @Min(value = 50, message = "Cost cannot be litter than 50")
     private Integer cost;
 
     private String description;

@@ -1,6 +1,7 @@
 package dev.lebenkov.warehouse.api.controller;
 
 import dev.lebenkov.warehouse.api.service.ProductTypeCRUDService;
+import dev.lebenkov.warehouse.api.service.ProductTypeQueryService;
 import dev.lebenkov.warehouse.storage.dto.ProductTypeRequest;
 import dev.lebenkov.warehouse.storage.dto.ProductTypeResponse;
 import jakarta.validation.Valid;
@@ -19,13 +20,16 @@ import java.util.List;
 @Validated
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*", allowedHeaders = "*", maxAge = 30)
 @RequestMapping("/api/v1/types")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductTypeController {
 
     ProductTypeCRUDService productTypeCRUDService;
+    ProductTypeQueryService productTypeQueryService;
 
     private final static String PRODUCT_TYPE_ID = "/{productTypeId}";
+    private final static String PRODUCT_TYPE_NAME = "/search/{productTypeName}";
 
     @GetMapping(PRODUCT_TYPE_ID)
     public ResponseEntity<ProductTypeResponse> fetchProductType(@PathVariable Long productTypeId) {
@@ -37,8 +41,13 @@ public class ProductTypeController {
         return new ResponseEntity<>(productTypeCRUDService.fetchAllProductTypes(), HttpStatus.OK);
     }
 
+    @GetMapping(PRODUCT_TYPE_NAME)
+    public ResponseEntity<List<ProductTypeResponse>> findSimilarProductTypes(@PathVariable String productTypeName) {
+        return new ResponseEntity<>(productTypeQueryService.findSimilarProductTypes(productTypeName), HttpStatus.OK);
+    }
+
     @PostMapping
-    public ResponseEntity<String> createProductType(@RequestBody ProductTypeRequest productTypeRequest) {
+    public ResponseEntity<String> createProductType(@RequestBody @Valid ProductTypeRequest productTypeRequest) {
         productTypeCRUDService.saveProductType(productTypeRequest);
         return new ResponseEntity<>("Product type was successfully added", HttpStatus.CREATED);
     }

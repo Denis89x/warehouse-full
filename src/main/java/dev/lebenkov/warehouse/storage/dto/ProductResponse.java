@@ -3,15 +3,17 @@ package dev.lebenkov.warehouse.storage.dto;
 import lombok.Data;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @ToString
 public class ProductResponse {
 
+    private Long productId;
+
     private String title;
 
-    private LocalDateTime date;
+    private LocalDate date;
 
     private Integer presence;
 

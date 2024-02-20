@@ -7,5 +7,7 @@ import lombok.ToString;
 @ToString
 public class ProductTypeResponse {
 
+    private Long productTypeId;
+
     private String name;
 }
