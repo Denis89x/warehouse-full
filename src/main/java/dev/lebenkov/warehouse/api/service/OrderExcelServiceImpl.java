@@ -21,6 +21,7 @@ import java.util.List;
 public class OrderExcelServiceImpl implements OrderExcelService {
 
     private final OrderQueryService orderQueryService;
+    private final OrderCRUDService orderCRUDService;
 
     private XSSFSheet sheet;
 
@@ -39,8 +40,9 @@ public class OrderExcelServiceImpl implements OrderExcelService {
 
     private static final int PRODUCTS_COLUMN_WIDTH = 10000;
 
-    public OrderExcelServiceImpl(OrderQueryService orderQueryService) {
+    public OrderExcelServiceImpl(OrderQueryService orderQueryService, OrderCRUDService orderCRUDService) {
         this.orderQueryService = orderQueryService;
+        this.orderCRUDService = orderCRUDService;
     }
 
     private void writeOrderHeader(XSSFWorkbook workbook, LocalDate startDate, LocalDate endDate) {
@@ -228,6 +230,56 @@ public class OrderExcelServiceImpl implements OrderExcelService {
         createOrderCell(authorRow, 0, "Составил___________________", authorStyle);
     }
 
+    private void writeExcel(XSSFWorkbook workbook, Long orderId) {
+        int index = workbook.getSheetIndex("Order");
+
+        if (index != -1) {
+            workbook.removeSheetAt(index);
+        }
+
+        sheet = workbook.createSheet("Order");
+
+        Row headerRow = sheet.createRow(0);
+        Row titleRow = sheet.createRow(1);
+        Row storeTitle = sheet.createRow(2);
+        Row addressRow = sheet.createRow(3);
+        Row orderNumberRow = sheet.createRow(5);
+        Row accountTitleRow = sheet.createRow(6);
+        Row amountRow = sheet.createRow(7);
+        Row dateRow = sheet.createRow(8);
+        Row orderTypeRow = sheet.createRow(9);
+        Row productsRow = sheet.createRow(10);
+        Row supplierTitleRow = sheet.createRow(11);
+        Row supplierAddressRow = sheet.createRow(12);
+        Row footerRow = sheet.createRow(14);
+
+        CellStyle headerStyle = stylizeLabel(workbook, (byte) 0, (byte) 0, true);
+        CellStyle textStyle = stylizeTextInfo(workbook);
+
+        XSSFFont textFont = workbook.createFont();
+
+        textFont.setFontHeight(11);
+
+        textStyle.setFont(textFont);
+
+        OrderResponse orderResponse = orderCRUDService.fetchOrder(orderId);
+
+        createOrderCell(headerRow, ZERO_COLUMN_INDEX, "Информация о заказе", headerStyle);
+        createOrderCell(titleRow, ZERO_COLUMN_INDEX, "Складской учёт", textStyle);
+        createOrderCell(storeTitle, ZERO_COLUMN_INDEX, "Склад: " + orderResponse.getStoreName(), textStyle);
+        createOrderCell(addressRow, ZERO_COLUMN_INDEX, "Адрес: Гомель, ул. Ильича, 2", textStyle);
+        createOrderCell(orderNumberRow, ZERO_COLUMN_INDEX, "Номер: " + orderResponse.getOrderId(), textStyle);
+        createOrderCell(accountTitleRow, ZERO_COLUMN_INDEX, "Сотрудник: " + orderResponse.getUsername(), textStyle);
+        createOrderCell(amountRow, ZERO_COLUMN_INDEX, "Сумма: " + orderResponse.getAmount(), textStyle);
+        createOrderCell(dateRow, ZERO_COLUMN_INDEX, "Дата: " + orderResponse.getOrderDate(), textStyle);
+        createOrderCell(orderTypeRow, ZERO_COLUMN_INDEX, "Тип: " + orderResponse.getOrderType(), textStyle);
+        createOrderCell(productsRow, ZERO_COLUMN_INDEX, "Продукты: " + orderResponse.getOrderCompositionResponses(), textStyle);
+        createOrderCell(supplierTitleRow, ZERO_COLUMN_INDEX, "Поставищик: " + orderResponse.getSupplierTitle(), textStyle);
+        createOrderCell(supplierAddressRow, ZERO_COLUMN_INDEX, "Адрес: ул. Хрензнаеткакая 10", textStyle);
+        createOrderCell(footerRow, ZERO_COLUMN_INDEX, "Составил_______________", textStyle);
+    }
+
+
     @Override
     public void generateExcelByDateRange(HttpServletResponse response, LocalDate startDate, LocalDate endDate) throws IOException {
         XSSFWorkbook workbook = new XSSFWorkbook();
@@ -252,6 +304,23 @@ public class OrderExcelServiceImpl implements OrderExcelService {
 
         writeOrderHeader(workbook, startDate, endDate);
         writeExcelOrdersBySupplier(workbook, startDate, endDate, supplierId);
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=example.xlsx");
+
+        ServletOutputStream outputStream = response.getOutputStream();
+
+        workbook.write(outputStream);
+        workbook.close();
+
+        outputStream.close();
+    }
+
+    @Override
+    public void generateOrderExcel(HttpServletResponse response, Long orderId) throws IOException {
+        XSSFWorkbook workbook = new XSSFWorkbook();
+
+        writeExcel(workbook, orderId);
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=example.xlsx");

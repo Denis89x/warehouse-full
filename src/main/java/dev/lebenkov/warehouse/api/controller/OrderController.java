@@ -1,8 +1,6 @@
 package dev.lebenkov.warehouse.api.controller;
 
-import dev.lebenkov.warehouse.api.service.OrderCRUDService;
-import dev.lebenkov.warehouse.api.service.OrderExcelService;
-import dev.lebenkov.warehouse.api.service.OrderQueryService;
+import dev.lebenkov.warehouse.api.service.*;
 import dev.lebenkov.warehouse.storage.dto.OrderRequest;
 import dev.lebenkov.warehouse.storage.dto.OrderResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,6 +30,7 @@ public class OrderController {
     OrderCRUDService orderCRUDService;
     OrderQueryService orderQueryService;
     OrderExcelService orderExcelService;
+    OrderCompositionExcelService orderCompositionExcelService;
 
     private final static String ORDER_ID = "/{orderId}";
     private final static String ORDER_FIELD = "/search/{orderField}";
@@ -40,6 +39,8 @@ public class OrderController {
     private final static String FETCH_ORDERS_BY_SUPPLIER = "/supplier/{supplierId}";
     private final static String FETCH_ORDERS_BY_DATE_RANGE_EXCEL = "/excel";
     private final static String FETCH_ORDERS_BY_SUPPLIER_EXCEL = "/excel-supplier/{supplierId}";
+    private final static String GENERATE_DELIVERY_NOTE_EXCEL = "/excel-delivery-note";
+    private final static String FETCH_ORDER_EXCEL = "/excel-order/{orderId}";
 
 
     @PostMapping
@@ -90,6 +91,19 @@ public class OrderController {
             @PathVariable("supplierId") Long supplierId,
             HttpServletResponse response) throws IOException {
         orderExcelService.generateExcelBySupplierId(response, startDate, endDate, supplierId);
+    }
+
+    @GetMapping(FETCH_ORDER_EXCEL)
+    public void writeExcelBySupplier(@PathVariable("orderId") Long orderId, HttpServletResponse response) throws IOException {
+        orderExcelService.generateOrderExcel(response, orderId);
+    }
+
+    @GetMapping(GENERATE_DELIVERY_NOTE_EXCEL)
+    public void writeExcelDeliveryNote(
+            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+            HttpServletResponse response) throws IOException {
+        orderCompositionExcelService.generateDeliveryNoteExcel(response, startDate, endDate);
     }
 
     @GetMapping(ORDER_FILTER)

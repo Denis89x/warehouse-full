@@ -10,4 +10,6 @@ public interface OrderExcelService {
     void generateExcelByDateRange(HttpServletResponse response, LocalDate startDate, LocalDate endDate) throws IOException;
 
     void generateExcelBySupplierId(HttpServletResponse response, LocalDate startDate, LocalDate endDate, Long supplierId) throws IOException;
+
+    void generateOrderExcel(HttpServletResponse response, Long orderId) throws IOException;
 }
