@@ -1,9 +1,11 @@
 package dev.lebenkov.warehouse.api.controller;
 
 import dev.lebenkov.warehouse.api.service.ProductCRUDService;
+import dev.lebenkov.warehouse.api.service.ProductExcelService;
 import dev.lebenkov.warehouse.api.service.ProductQueryService;
 import dev.lebenkov.warehouse.storage.dto.ProductRequest;
 import dev.lebenkov.warehouse.storage.dto.ProductResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -28,10 +31,13 @@ public class ProductController {
 
     ProductCRUDService productCRUDService;
     ProductQueryService productQueryService;
+    ProductExcelService productExcelService;
 
     private final static String PRODUCT_ID = "/{productId}";
     private final static String PRODUCT_FIELD = "/search/{productField}";
     private final static String PRODUCT_FILTRATE = "/filter";
+
+    private final static String GENERATE_PRODUCT_BALANCE_EXCEL = "/excel-product";
 
     @GetMapping(PRODUCT_ID)
     public ResponseEntity<ProductResponse> fetchProduct(@PathVariable Long productId) {
@@ -71,5 +77,12 @@ public class ProductController {
     public ResponseEntity<String> deleteProduct(@PathVariable Long productId) {
         productCRUDService.deleteProduct(productId);
         return new ResponseEntity<>("Product with " + productId + " id was successfully deleted", HttpStatus.OK);
+    }
+
+    @GetMapping(GENERATE_PRODUCT_BALANCE_EXCEL)
+    public void writeExcel(@RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+                           @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+                           HttpServletResponse response) throws IOException {
+        productExcelService.generateProductBalanceExcel(response, startDate, endDate);
     }
 }
