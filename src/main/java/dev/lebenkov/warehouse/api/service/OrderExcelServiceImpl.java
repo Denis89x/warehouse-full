@@ -3,9 +3,8 @@ package dev.lebenkov.warehouse.api.service;
 import dev.lebenkov.warehouse.storage.dto.OrderResponse;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.util.CellRangeAddress;
+import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -13,314 +12,138 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-@Slf4j
 @Service
+@RequiredArgsConstructor
 public class OrderExcelServiceImpl implements OrderExcelService {
 
     private final OrderQueryService orderQueryService;
     private final OrderCRUDService orderCRUDService;
+    private final StylizeExcelService stylizeExcelService;
+    private final ExcelFontService excelFontService;
+    private final OrderExcelInfoCreationService orderExcelInfoCreationService;
+    private final CellCreationService cellCreationService;
+    private final FooterCreationService footerCreationService;
+    private final HeaderCreationService headerCreationService;
 
     private XSSFSheet sheet;
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    private static final Integer[] COLUMN_INDEXES = {0, 1, 2, 3, 4, 5, 6, 7};
 
-    private static final byte ZERO_COLUMN_INDEX = 0;
-
-    private static final byte ORDER_ID_COLUMN_INDEX = 0;
-    private static final byte SUPPLIER_COLUMN_INDEX = 1;
-    private static final byte ACCOUNT_COLUMN_INDEX = 2;
-    private static final byte STORE_COLUMN_INDEX = 3;
-    private static final byte ORDER_TYPE_COLUMN_INDEX = 4;
-    private static final byte DATE_COLUMN_INDEX = 5;
-    private static final byte AMOUNT_COLUMN_INDEX = 6;
-    private static final byte PRODUCTS_COLUMN_INDEX = 7;
-
+    private static final int PRODUCT_COLUMN_INDEX = 7;
     private static final int PRODUCTS_COLUMN_WIDTH = 10000;
 
-    public OrderExcelServiceImpl(OrderQueryService orderQueryService, OrderCRUDService orderCRUDService) {
-        this.orderQueryService = orderQueryService;
-        this.orderCRUDService = orderCRUDService;
+    private void createHeaderTitles(XSSFWorkbook workbook, String[] headerTitles) {
+        headerCreationService.createExcelHeaderInfo(workbook, headerTitles, sheet);
+    }
+
+    private void createTableHeaderRow(CellStyle tableHeaderStyle) {
+        String[] tableTitles = {"O/N", "Поставщик", "Аккаунт", "Склад", "Тип заказа", "Дата", "Сумма", "Продукты"};
+        headerCreationService.createTableHeaderRow(tableHeaderStyle, 5, COLUMN_INDEXES, tableTitles, sheet);
     }
 
     private void writeOrderHeader(XSSFWorkbook workbook, LocalDate startDate, LocalDate endDate) {
-        int index = workbook.getSheetIndex("Order");
+        checkWorkbookWithSameName(workbook);
 
-        if (index != -1) {
-            workbook.removeSheetAt(index);
-        }
+        String[] headerTitles = {"Отчёт о движении продуктов", "Период: " + startDate + " - " + endDate, "Складской учёт", "Адрес: Гомель, ул. Ильича 2"};
 
         sheet = workbook.createSheet("Order");
 
-        Row reportHeaderRow = sheet.createRow(0);
-        Row periodRow = sheet.createRow(1);
-        Row titleRow = sheet.createRow(2);
-        Row addressRow = sheet.createRow(3);
+        CellStyle tableHeaderStyle = stylizeExcelService.stylizeWorkbook(workbook, true);
 
-        Row fieldsRow = sheet.createRow(5);
+        createHeaderTitles(workbook, headerTitles);
 
-        CellStyle tableStyle = stylizeWorkbook(workbook);
-        CellStyle textStyle = stylizeTextInfo(workbook);
-        CellStyle reportHeaderRowStyle = stylizeLabel(workbook, (byte) 0, (byte) 0, true);
-        CellStyle periodStyle = stylizeLabel(workbook, (byte) 1, (byte) 1, false);
-        CellStyle titleStyle = stylizeLabel(workbook, (byte) 2, (byte) 2, false);
-        CellStyle addressStyle = stylizeLabel(workbook, (byte) 3, (byte) 3, false);
-
-        XSSFFont tableHeaderFont = workbook.createFont();
-        XSSFFont textFont = workbook.createFont();
-
-        tableHeaderFont.setBold(true);
-        tableHeaderFont.setFontHeight(12);
-
-        textFont.setFontHeight(12);
-
-        tableStyle.setFont(tableHeaderFont);
-        textStyle.setFont(tableHeaderFont);
-        reportHeaderRowStyle.setFont(textFont);
-
-        createOrderCell(reportHeaderRow, ZERO_COLUMN_INDEX, "Отчет о движении продуктов", reportHeaderRowStyle);
-        createOrderCell(periodRow, ZERO_COLUMN_INDEX, "Период: " + startDate + " - " + endDate, periodStyle);
-        createOrderCell(titleRow, ZERO_COLUMN_INDEX, "Складской учёт", titleStyle);
-        createOrderCell(addressRow, ZERO_COLUMN_INDEX, "Адрес: Гомель, ул. Ильча 2", addressStyle);
-
-        createOrderCell(fieldsRow, ORDER_ID_COLUMN_INDEX, "O/N", tableStyle);
-        createOrderCell(fieldsRow, SUPPLIER_COLUMN_INDEX, "Supplier", tableStyle);
-        createOrderCell(fieldsRow, ACCOUNT_COLUMN_INDEX, "Account", tableStyle);
-        createOrderCell(fieldsRow, STORE_COLUMN_INDEX, "Store", tableStyle);
-        createOrderCell(fieldsRow, ORDER_TYPE_COLUMN_INDEX, "Order type", tableStyle);
-        createOrderCell(fieldsRow, DATE_COLUMN_INDEX, "Date", tableStyle);
-        createOrderCell(fieldsRow, AMOUNT_COLUMN_INDEX, "Amount", tableStyle);
-        createOrderCell(fieldsRow, PRODUCTS_COLUMN_INDEX, "Products", tableStyle);
-    }
-
-    private CellStyle stylizeWorkbook(Workbook workbook) {
-        CellStyle style = workbook.createCellStyle();
-        style.setBorderBottom(BorderStyle.THIN);
-        style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
-        style.setBorderLeft(BorderStyle.THIN);
-        style.setLeftBorderColor(IndexedColors.BLACK.getIndex());
-        style.setBorderRight(BorderStyle.THIN);
-        style.setRightBorderColor(IndexedColors.BLACK.getIndex());
-        style.setBorderTop(BorderStyle.THIN);
-        style.setTopBorderColor(IndexedColors.BLACK.getIndex());
-        style.setAlignment(HorizontalAlignment.CENTER);
-        style.setVerticalAlignment(VerticalAlignment.CENTER);
-
-        return style;
-    }
-
-    private CellStyle stylizeTextInfo(Workbook workbook) {
-        CellStyle style = workbook.createCellStyle();
-
-        style.setAlignment(HorizontalAlignment.LEFT);
-        style.setVerticalAlignment(VerticalAlignment.CENTER);
-
-        return style;
-    }
-
-    private CellStyle stylizeLabel(Workbook workbook, byte startRow, byte endRow, boolean isLabel) {
-        CellStyle style = workbook.createCellStyle();
-
-        if (isLabel) {
-            style.setAlignment(HorizontalAlignment.CENTER);
-        }
-
-        style.setVerticalAlignment(VerticalAlignment.CENTER);
-
-        sheet.addMergedRegion(new CellRangeAddress(
-                startRow, // начальная строка
-                endRow, // конечная строка
-                0, // начальная колонка
-                7  // конечная колонка
-        ));
-
-        return style;
-    }
-
-    private void createOrderCell(Row row, int columnCount, Object valueOfCell, CellStyle style) {
-        sheet.autoSizeColumn(columnCount);
-        Cell cell = row.createCell(columnCount);
-
-        if (valueOfCell instanceof Integer) {
-            cell.setCellValue((Integer) valueOfCell);
-            cell.setCellStyle(style);
-        } else if (valueOfCell instanceof Long) {
-            cell.setCellValue((Long) valueOfCell);
-            cell.setCellStyle(style);
-        } else if (valueOfCell instanceof String) {
-            cell.setCellValue((String) valueOfCell);
-            cell.setCellStyle(style);
-        } else if (valueOfCell instanceof LocalDate) {
-            cell.setCellValue(((LocalDate) valueOfCell).format(DATE_FORMATTER));
-            cell.setCellStyle(style);
-        } else if (valueOfCell instanceof List<?> list) {
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 1, j = 0; j < list.size(); i++, j++) {
-                stringBuilder.append(list.get(j).toString());
-                if (i % 3 == 0 && i < list.size()) {
-                    stringBuilder.append("\n");
-                } else {
-                    stringBuilder.append(", ");
-                }
-            }
-
-            String valueAsString = stringBuilder.toString();
-
-            cell.setCellValue(valueAsString.substring(0, valueAsString.length() - 2));
-            cell.setCellStyle(style);
-
-            CellStyle multiLineCellStyle = stylizeWorkbook(cell.getSheet().getWorkbook());
-
-            multiLineCellStyle.setWrapText(true);
-            cell.setCellStyle(multiLineCellStyle);
-        } else {
-            cell.setCellValue((Boolean) valueOfCell);
-        }
+        createTableHeaderRow(tableHeaderStyle);
     }
 
     private void writeExcelOrdersByDateRange(XSSFWorkbook workbook, LocalDate startDate, LocalDate endDate) {
         List<OrderResponse> orderResponses = orderQueryService.findOrdersByDateRange(startDate, endDate);
 
-        writeOrderExcel(workbook, orderResponses);
+        writeOrderDataExcel(workbook, orderResponses);
     }
 
     private void writeExcelOrdersBySupplier(XSSFWorkbook workbook, LocalDate startDate, LocalDate endDate, Long supplierId) {
         List<OrderResponse> orderResponses = orderQueryService.findOrderByTypeAndSupplier(supplierId, startDate, endDate);
 
-        writeOrderExcel(workbook, orderResponses);
+        writeOrderDataExcel(workbook, orderResponses);
     }
 
-    private void writeOrderExcel(XSSFWorkbook workbook, List<OrderResponse> orderResponses) {
+    private void writeOrderDataExcel(XSSFWorkbook workbook, List<OrderResponse> orderResponses) {
         int rowCount = 6;
-
-        CellStyle style = stylizeWorkbook(workbook);
-        XSSFFont font = workbook.createFont();
-
-        font.setFontHeight(11);
-        style.setFont(font);
 
         sheet.getPrintSetup().setLandscape(true);
 
+        CellStyle tableStyle = stylizeExcelService.stylizeWorkbook(workbook, false);
+
+        XSSFFont textFont = excelFontService.createTextFont(workbook);
+
+        tableStyle.setFont(textFont);
+
         for (OrderResponse orderResponse : orderResponses) {
-            Row row = sheet.createRow(rowCount++);
+            Object[] titleRows = {orderResponse.getOrderId(), orderResponse.getSupplierTitle(), orderResponse.getUsername(),
+                    orderResponse.getStoreName(), orderResponse.getOrderType(), orderResponse.getOrderDate(),
+                    orderResponse.getAmount(), orderResponse.getOrderCompositionResponses()};
 
-            createOrderCell(row, ORDER_ID_COLUMN_INDEX, orderResponse.getOrderId(), style);
-            createOrderCell(row, SUPPLIER_COLUMN_INDEX, orderResponse.getSupplierTitle(), style);
-            createOrderCell(row, ACCOUNT_COLUMN_INDEX, orderResponse.getUsername(), style);
-            createOrderCell(row, STORE_COLUMN_INDEX, orderResponse.getStoreName(), style);
-            createOrderCell(row, ORDER_TYPE_COLUMN_INDEX, orderResponse.getOrderType(), style);
-            createOrderCell(row, DATE_COLUMN_INDEX, orderResponse.getOrderDate(), style);
-            createOrderCell(row, AMOUNT_COLUMN_INDEX, orderResponse.getAmount(), style);
-            createOrderCell(row, PRODUCTS_COLUMN_INDEX, orderResponse.getOrderCompositionResponses(), style);
+            sheet.setColumnWidth(PRODUCT_COLUMN_INDEX, PRODUCTS_COLUMN_WIDTH);
 
-            sheet.setColumnWidth(PRODUCTS_COLUMN_INDEX, PRODUCTS_COLUMN_WIDTH);
+            cellCreationService.createTableDataRow(titleRows, rowCount++, COLUMN_INDEXES, tableStyle, sheet);
         }
 
-        Row authorRow = sheet.createRow(rowCount + 2);
-        CellStyle authorStyle = stylizeLabel(workbook, (byte) (rowCount + 2), (byte) (rowCount + 2), false);
-
-        XSSFFont textFont = workbook.createFont();
-
-        textFont.setFontHeight(12);
-
-        authorStyle.setFont(textFont);
-
-        createOrderCell(authorRow, 0, "Составил___________________", authorStyle);
+        footerCreationService.createAuthorFooter(workbook, rowCount, textFont, sheet);
     }
 
     private void writeExcel(XSSFWorkbook workbook, Long orderId) {
+        checkWorkbookWithSameName(workbook);
+
+        sheet = workbook.createSheet("Order");
+
+        OrderResponse orderResponse = orderCRUDService.fetchOrder(orderId);
+
+        Integer[] rowIndexes = {0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12};
+        String[] columnTitles = {"Информация о заказе", "Складской учёт", "Склад: " + orderResponse.getStoreName(),
+                "Адрес: Гомель, ул. Ильича, 2", "Номер: " + orderResponse.getOrderId(), "Сотрудник: " + orderResponse.getUsername(),
+                "Сумма: " + orderResponse.getAmount(), "Дата: " + orderResponse.getOrderDate(), "Тип: " + orderResponse.getOrderType(),
+                "Продукты: " + orderResponse.getOrderCompositionResponses(), "Поставищик: " + orderResponse.getSupplierTitle(), "Адрес: ул. Хрензнаеткакая 10"};
+
+        orderExcelInfoCreationService.createOrderExcelInfo(workbook, rowIndexes, columnTitles, sheet);
+    }
+
+    @Override
+    public void generateExcelByDateRange(HttpServletResponse response, LocalDate startDate, LocalDate endDate) throws IOException {
+        generateExcel(response, startDate, endDate, null, null);
+    }
+
+    @Override
+    public void generateExcelBySupplierId(HttpServletResponse response, LocalDate startDate, LocalDate endDate, Long supplierId) throws IOException {
+        generateExcel(response, startDate, endDate, supplierId, null);
+    }
+
+    @Override
+    public void generateOrderExcel(HttpServletResponse response, Long orderId) throws IOException {
+        generateExcel(response, null, null, null, orderId);
+    }
+
+    private void checkWorkbookWithSameName(XSSFWorkbook workbook) {
         int index = workbook.getSheetIndex("Order");
 
         if (index != -1) {
             workbook.removeSheetAt(index);
         }
-
-        sheet = workbook.createSheet("Order");
-
-        Row headerRow = sheet.createRow(0);
-        Row titleRow = sheet.createRow(1);
-        Row storeTitle = sheet.createRow(2);
-        Row addressRow = sheet.createRow(3);
-        Row orderNumberRow = sheet.createRow(5);
-        Row accountTitleRow = sheet.createRow(6);
-        Row amountRow = sheet.createRow(7);
-        Row dateRow = sheet.createRow(8);
-        Row orderTypeRow = sheet.createRow(9);
-        Row productsRow = sheet.createRow(10);
-        Row supplierTitleRow = sheet.createRow(11);
-        Row supplierAddressRow = sheet.createRow(12);
-        Row footerRow = sheet.createRow(14);
-
-        CellStyle headerStyle = stylizeLabel(workbook, (byte) 0, (byte) 0, true);
-        CellStyle textStyle = stylizeTextInfo(workbook);
-
-        XSSFFont textFont = workbook.createFont();
-
-        textFont.setFontHeight(11);
-
-        textStyle.setFont(textFont);
-
-        OrderResponse orderResponse = orderCRUDService.fetchOrder(orderId);
-
-        createOrderCell(headerRow, ZERO_COLUMN_INDEX, "Информация о заказе", headerStyle);
-        createOrderCell(titleRow, ZERO_COLUMN_INDEX, "Складской учёт", textStyle);
-        createOrderCell(storeTitle, ZERO_COLUMN_INDEX, "Склад: " + orderResponse.getStoreName(), textStyle);
-        createOrderCell(addressRow, ZERO_COLUMN_INDEX, "Адрес: Гомель, ул. Ильича, 2", textStyle);
-        createOrderCell(orderNumberRow, ZERO_COLUMN_INDEX, "Номер: " + orderResponse.getOrderId(), textStyle);
-        createOrderCell(accountTitleRow, ZERO_COLUMN_INDEX, "Сотрудник: " + orderResponse.getUsername(), textStyle);
-        createOrderCell(amountRow, ZERO_COLUMN_INDEX, "Сумма: " + orderResponse.getAmount(), textStyle);
-        createOrderCell(dateRow, ZERO_COLUMN_INDEX, "Дата: " + orderResponse.getOrderDate(), textStyle);
-        createOrderCell(orderTypeRow, ZERO_COLUMN_INDEX, "Тип: " + orderResponse.getOrderType(), textStyle);
-        createOrderCell(productsRow, ZERO_COLUMN_INDEX, "Продукты: " + orderResponse.getOrderCompositionResponses(), textStyle);
-        createOrderCell(supplierTitleRow, ZERO_COLUMN_INDEX, "Поставищик: " + orderResponse.getSupplierTitle(), textStyle);
-        createOrderCell(supplierAddressRow, ZERO_COLUMN_INDEX, "Адрес: ул. Хрензнаеткакая 10", textStyle);
-        createOrderCell(footerRow, ZERO_COLUMN_INDEX, "Составил_______________", textStyle);
     }
 
-
-    @Override
-    public void generateExcelByDateRange(HttpServletResponse response, LocalDate startDate, LocalDate endDate) throws IOException {
+    private void generateExcel(HttpServletResponse response, LocalDate startDate, LocalDate endDate, Long supplierId, Long orderId) throws IOException {
         XSSFWorkbook workbook = new XSSFWorkbook();
 
-        writeOrderHeader(workbook, startDate, endDate);
-        writeExcelOrdersByDateRange(workbook, startDate, endDate);
-
-        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=example.xlsx");
-
-        ServletOutputStream outputStream = response.getOutputStream();
-
-        workbook.write(outputStream);
-        workbook.close();
-
-        outputStream.close();
-    }
-
-    @Override
-    public void generateExcelBySupplierId(HttpServletResponse response, LocalDate startDate, LocalDate endDate, Long supplierId) throws IOException {
-        XSSFWorkbook workbook = new XSSFWorkbook();
-
-        writeOrderHeader(workbook, startDate, endDate);
-        writeExcelOrdersBySupplier(workbook, startDate, endDate, supplierId);
-
-        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=example.xlsx");
-
-        ServletOutputStream outputStream = response.getOutputStream();
-
-        workbook.write(outputStream);
-        workbook.close();
-
-        outputStream.close();
-    }
-
-    @Override
-    public void generateOrderExcel(HttpServletResponse response, Long orderId) throws IOException {
-        XSSFWorkbook workbook = new XSSFWorkbook();
-
-        writeExcel(workbook, orderId);
+        if (supplierId != null) {
+            writeOrderHeader(workbook, startDate, endDate);
+            writeExcelOrdersBySupplier(workbook, startDate, endDate, supplierId);
+        } else if (orderId != null) {
+            writeExcel(workbook, orderId);
+        } else {
+            writeOrderHeader(workbook, startDate, endDate);
+            writeExcelOrdersByDateRange(workbook, startDate, endDate);
+        }
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=example.xlsx");
