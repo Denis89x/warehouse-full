@@ -25,8 +25,9 @@ public class ProductExcelServiceImpl implements ProductExcelService {
     private final StylizeExcelService stylizeExcelService;
     private final ExcelCellService excelCellService;
     private final ProductQueryService productQueryService;
+    private final ExcelFontService excelFontService;
 
-    private final Integer[] COLUMN_INDEXES = {0, 1, 2, 3, 4, 5, 6};
+    private static final Integer[] COLUMN_INDEXES = {0, 1, 2, 3, 4, 5, 6};
 
     private void writeProductExcel(XSSFWorkbook workbook, LocalDate startDate, LocalDate endDate) {
         List<ProductResponse> productResponses = findProductResponsesByDateRange(startDate, endDate);
@@ -36,10 +37,10 @@ public class ProductExcelServiceImpl implements ProductExcelService {
         int rowCount = 4;
 
         CellStyle tableStyle = stylizeExcelService.stylizeWorkbook(workbook, false);
-        XSSFFont textFont = workbook.createFont();
-        textFont.setFontHeight(12);
-        tableStyle.setFont(textFont);
 
+        XSSFFont textFont = excelFontService.createTextFont(workbook);
+
+        tableStyle.setFont(textFont);
 
         for (ProductResponse productResponse : productResponses) {
             Object[] titleRows = {productResponse.getProductId(), productResponse.getTitle(), productResponse.getDate(),
@@ -68,7 +69,7 @@ public class ProductExcelServiceImpl implements ProductExcelService {
     }
 
     private void createTableHeaderRow(CellStyle tableHeaderStyle) {
-        String[] titleColumns = {"Номер", "Название", "Дата", "Наличие", "Цена", "Описание", "Тип продукта"};
+        String[] titleColumns = {"Номер", "Название", "Дата", "Наличие", "Цена", "Описание", "Тип заказа"};
         excelCellService.createTableHeaderRow(tableHeaderStyle, 3, COLUMN_INDEXES, titleColumns, sheet);
     }
 

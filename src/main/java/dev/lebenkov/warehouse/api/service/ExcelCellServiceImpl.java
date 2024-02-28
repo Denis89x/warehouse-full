@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -43,6 +44,26 @@ public class ExcelCellServiceImpl implements ExcelCellService {
         } else if (valueOfCell instanceof ProductTypeResponse) {
             cell.setCellValue(((ProductTypeResponse) valueOfCell).getName());
             cell.setCellStyle(style);
+        } else if (valueOfCell instanceof List<?> list) {
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = 1, j = 0; j < list.size(); i++, j++) {
+                stringBuilder.append(list.get(j).toString());
+                if (i % 3 == 0 && i < list.size()) {
+                    stringBuilder.append("\n");
+                } else {
+                    stringBuilder.append(", ");
+                }
+            }
+
+            String valueAsString = stringBuilder.toString();
+
+            cell.setCellValue(valueAsString.substring(0, valueAsString.length() - 2));
+            cell.setCellStyle(style);
+
+            CellStyle multiLineCellStyle = stylizeExcelService.stylizeWorkbook((XSSFWorkbook) cell.getSheet().getWorkbook(), false);
+
+            multiLineCellStyle.setWrapText(true);
+            cell.setCellStyle(multiLineCellStyle);
         } else {
             cell.setCellValue((Boolean) valueOfCell);
         }
@@ -64,8 +85,17 @@ public class ExcelCellServiceImpl implements ExcelCellService {
     public void createTableHeaderRow(CellStyle tableHeaderStyle, Integer rowIndex, Integer[] columnIndexes, String[] titleColumns, XSSFSheet sheet) {
         Row tableHeaderRow = sheet.createRow(rowIndex);
         for (int i = 0; i < columnIndexes.length; i++) {
-            log.info("title: {}, index: {}", titleColumns[i], i);
             createOrderCell(tableHeaderRow, columnIndexes[i], titleColumns[i], tableHeaderStyle, sheet);
+        }
+    }
+
+    @Override
+    public void createExcelHeaderInfo(XSSFWorkbook workbook, String[] titleColumns, XSSFSheet sheet) {
+        for (int i = 0; i < titleColumns.length; i++) {
+            Row row = sheet.createRow(i);
+            CellStyle style = stylizeExcelService.stylizeLabel(workbook, (byte) i, (byte) i, (byte) 0, (byte) 7, false, sheet);
+
+            createOrderCell(row, 0, titleColumns[i], style, sheet);
         }
     }
 
@@ -77,11 +107,23 @@ public class ExcelCellServiceImpl implements ExcelCellService {
         }
     }
 
+    @Override
     public void createAuthorFooter(XSSFWorkbook workbook, int rowCount, XSSFFont textFont, XSSFSheet sheet) {
         CellStyle authorStyle = stylizeExcelService.stylizeLabel(workbook, (byte) rowCount, (byte) rowCount, (byte) 0, (byte) 4, false, sheet);
         authorStyle.setFont(textFont);
 
         Row footerRow = sheet.createRow(rowCount + 1);
         createOrderCell(footerRow, 0, "Составил" + "_".repeat(20), authorStyle, sheet);
+    }
+
+    @Override
+    public void createOrderExcelInfo(XSSFWorkbook workbook, Integer[] rowIndexes, String[] columnTitles, XSSFSheet sheet) {
+        CellStyle style = stylizeExcelService.stylizeLabel(workbook, (byte) 0, (byte) 0, (byte) 0, (byte) 7, false, sheet);
+
+        for (int i = 0; i < rowIndexes.length; i++) {
+            Row row = sheet.createRow(rowIndexes[i]);
+
+            createOrderCell(row, 0, columnTitles[i], style, sheet);
+        }
     }
 }

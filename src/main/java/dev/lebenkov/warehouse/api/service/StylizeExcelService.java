@@ -13,4 +13,6 @@ public interface StylizeExcelService {
     CellStyle stylizeDateRow(Workbook workbook, byte startRow, byte endRow, byte startColumn, byte endColumn, XSSFSheet sheet);
 
     CellStyle stylizeTitleRow(XSSFWorkbook workbook, byte startRow, byte endRow, byte startColumn, byte endColumn, XSSFSheet sheet);
+
+    CellStyle stylizeTextInfo(Workbook workbook);
 }

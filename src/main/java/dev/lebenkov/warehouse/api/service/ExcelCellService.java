@@ -17,7 +17,11 @@ public interface ExcelCellService {
 
     void createTableHeaderRow(CellStyle tableHeaderStyle, Integer rowIndex, Integer[] columnIndexes, String[] titleColumns, XSSFSheet sheet);
 
+    void createExcelHeaderInfo(XSSFWorkbook workbook, String[] titleColumns, XSSFSheet sheet);
+
     void createTableDataRow(Object[] titleRows, Integer rowCount, Integer[] columnIndexes, CellStyle tableStyle, XSSFSheet sheet);
 
     void createAuthorFooter(XSSFWorkbook workbook, int rowCount, XSSFFont textFont, XSSFSheet sheet);
+
+    void createOrderExcelInfo(XSSFWorkbook workbook, Integer[] rowIndexes, String[] columnTitles, XSSFSheet sheet);
 }

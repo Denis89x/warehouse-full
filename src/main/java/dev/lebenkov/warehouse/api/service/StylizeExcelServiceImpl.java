@@ -75,4 +75,14 @@ public class StylizeExcelServiceImpl implements StylizeExcelService {
 
         return cellStyle;
     }
+
+    @Override
+    public CellStyle stylizeTextInfo(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+
+        style.setAlignment(HorizontalAlignment.LEFT);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        return style;
+    }
 }
