@@ -23,8 +23,11 @@ public class ProductExcelServiceImpl implements ProductExcelService {
     private XSSFSheet sheet;
 
     private final StylizeExcelService stylizeExcelService;
-    private final ExcelCellService excelCellService;
     private final ProductQueryService productQueryService;
+    private final HeaderCreationService headerCreationService;
+    private final FooterCreationService footerCreationService;
+    private final CellCreationService cellCreationService;
+    private final DateRangeCreationService dateRangeCreationService;
     private final ExcelFontService excelFontService;
 
     private static final Integer[] COLUMN_INDEXES = {0, 1, 2, 3, 4, 5, 6};
@@ -45,10 +48,10 @@ public class ProductExcelServiceImpl implements ProductExcelService {
         for (ProductResponse productResponse : productResponses) {
             Object[] titleRows = {productResponse.getProductId(), productResponse.getTitle(), productResponse.getDate(),
                     productResponse.getPresence(), productResponse.getCost(), productResponse.getDescription(), productResponse.getProductTypeResponse()};
-            excelCellService.createTableDataRow(titleRows, rowCount++, COLUMN_INDEXES, tableStyle, sheet);
+            cellCreationService.createTableDataRow(titleRows, rowCount++, COLUMN_INDEXES, tableStyle, sheet);
         }
 
-        excelCellService.createAuthorFooter(workbook, rowCount, textFont, sheet);
+        footerCreationService.createAuthorFooter(workbook, rowCount, textFont, sheet);
     }
 
     private void createProductSheet(XSSFWorkbook workbook, LocalDate startDate, LocalDate endDate) {
@@ -63,14 +66,14 @@ public class ProductExcelServiceImpl implements ProductExcelService {
 
         CellStyle tableHeaderStyle = stylizeExcelService.stylizeWorkbook(workbook, true);
 
-        excelCellService.createDateRangeRow(startDate, endDate, dateStyle, sheet, 2);
-        excelCellService.createHeaderRow(titleStyle, 0, sheet, "Наличие продуктов");
+        dateRangeCreationService.createDateRangeRow(startDate, endDate, dateStyle, sheet, 2);
+        headerCreationService.createHeaderRow(titleStyle, 0, sheet, "Наличие продуктов");
         createTableHeaderRow(tableHeaderStyle);
     }
 
     private void createTableHeaderRow(CellStyle tableHeaderStyle) {
         String[] titleColumns = {"Номер", "Название", "Дата", "Наличие", "Цена", "Описание", "Тип заказа"};
-        excelCellService.createTableHeaderRow(tableHeaderStyle, 3, COLUMN_INDEXES, titleColumns, sheet);
+        headerCreationService.createTableHeaderRow(tableHeaderStyle, 3, COLUMN_INDEXES, titleColumns, sheet);
     }
 
     private List<ProductResponse> findProductResponsesByDateRange(LocalDate startDate, LocalDate endDate) {

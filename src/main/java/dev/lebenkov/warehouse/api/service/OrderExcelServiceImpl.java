@@ -4,7 +4,6 @@ import dev.lebenkov.warehouse.storage.dto.OrderResponse;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -15,7 +14,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderExcelServiceImpl implements OrderExcelService {
@@ -23,32 +21,30 @@ public class OrderExcelServiceImpl implements OrderExcelService {
     private final OrderQueryService orderQueryService;
     private final OrderCRUDService orderCRUDService;
     private final StylizeExcelService stylizeExcelService;
-    private final ExcelCellService excelCellService;
     private final ExcelFontService excelFontService;
+    private final OrderExcelInfoCreationService orderExcelInfoCreationService;
+    private final CellCreationService cellCreationService;
+    private final FooterCreationService footerCreationService;
+    private final HeaderCreationService headerCreationService;
 
     private XSSFSheet sheet;
 
-    private static final byte ZERO_COLUMN_INDEX = 0;
-
     private static final Integer[] COLUMN_INDEXES = {0, 1, 2, 3, 4, 5, 6, 7};
-    private static final String[] TABLE_TITLES = {"O/N", "Поставщик", "Аккаунт", "Склад", "Тип заказа", "Дата", "Сумма", "Продукты"};
 
+    private static final int PRODUCT_COLUMN_INDEX = 7;
     private static final int PRODUCTS_COLUMN_WIDTH = 10000;
 
     private void createHeaderTitles(XSSFWorkbook workbook, String[] headerTitles) {
-        excelCellService.createExcelHeaderInfo(workbook, headerTitles, sheet);
+        headerCreationService.createExcelHeaderInfo(workbook, headerTitles, sheet);
     }
 
     private void createTableHeaderRow(CellStyle tableHeaderStyle) {
-        excelCellService.createTableHeaderRow(tableHeaderStyle, 5, COLUMN_INDEXES, TABLE_TITLES, sheet);
+        String[] tableTitles = {"O/N", "Поставщик", "Аккаунт", "Склад", "Тип заказа", "Дата", "Сумма", "Продукты"};
+        headerCreationService.createTableHeaderRow(tableHeaderStyle, 5, COLUMN_INDEXES, tableTitles, sheet);
     }
 
     private void writeOrderHeader(XSSFWorkbook workbook, LocalDate startDate, LocalDate endDate) {
-        int index = workbook.getSheetIndex("Order");
-
-        if (index != -1) {
-            workbook.removeSheetAt(index);
-        }
+        checkWorkbookWithSameName(workbook);
 
         String[] headerTitles = {"Отчёт о движении продуктов", "Период: " + startDate + " - " + endDate, "Складской учёт", "Адрес: Гомель, ул. Ильича 2"};
 
@@ -89,20 +85,16 @@ public class OrderExcelServiceImpl implements OrderExcelService {
                     orderResponse.getStoreName(), orderResponse.getOrderType(), orderResponse.getOrderDate(),
                     orderResponse.getAmount(), orderResponse.getOrderCompositionResponses()};
 
-            sheet.setColumnWidth(7, PRODUCTS_COLUMN_WIDTH);
+            sheet.setColumnWidth(PRODUCT_COLUMN_INDEX, PRODUCTS_COLUMN_WIDTH);
 
-            excelCellService.createTableDataRow(titleRows, rowCount++, COLUMN_INDEXES, tableStyle, sheet);
+            cellCreationService.createTableDataRow(titleRows, rowCount++, COLUMN_INDEXES, tableStyle, sheet);
         }
 
-        excelCellService.createAuthorFooter(workbook, rowCount, textFont, sheet);
+        footerCreationService.createAuthorFooter(workbook, rowCount, textFont, sheet);
     }
 
     private void writeExcel(XSSFWorkbook workbook, Long orderId) {
-        int index = workbook.getSheetIndex("Order");
-
-        if (index != -1) {
-            workbook.removeSheetAt(index);
-        }
+        checkWorkbookWithSameName(workbook);
 
         sheet = workbook.createSheet("Order");
 
@@ -114,7 +106,7 @@ public class OrderExcelServiceImpl implements OrderExcelService {
                 "Сумма: " + orderResponse.getAmount(), "Дата: " + orderResponse.getOrderDate(), "Тип: " + orderResponse.getOrderType(),
                 "Продукты: " + orderResponse.getOrderCompositionResponses(), "Поставищик: " + orderResponse.getSupplierTitle(), "Адрес: ул. Хрензнаеткакая 10"};
 
-        excelCellService.createOrderExcelInfo(workbook, rowIndexes, columnTitles, sheet);
+        orderExcelInfoCreationService.createOrderExcelInfo(workbook, rowIndexes, columnTitles, sheet);
     }
 
     @Override
@@ -130,6 +122,14 @@ public class OrderExcelServiceImpl implements OrderExcelService {
     @Override
     public void generateOrderExcel(HttpServletResponse response, Long orderId) throws IOException {
         generateExcel(response, null, null, null, orderId);
+    }
+
+    private void checkWorkbookWithSameName(XSSFWorkbook workbook) {
+        int index = workbook.getSheetIndex("Order");
+
+        if (index != -1) {
+            workbook.removeSheetAt(index);
+        }
     }
 
     private void generateExcel(HttpServletResponse response, LocalDate startDate, LocalDate endDate, Long supplierId, Long orderId) throws IOException {

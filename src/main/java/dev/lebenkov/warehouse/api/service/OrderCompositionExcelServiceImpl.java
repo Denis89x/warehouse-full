@@ -25,7 +25,8 @@ public class OrderCompositionExcelServiceImpl implements OrderCompositionExcelSe
 
     private final OrderCompositionQueryService orderCompositionQueryService;
     private final StylizeExcelService stylizeExcelService;
-    private final ExcelCellService excelCellService;
+    private final CellCreationService cellCreationService;
+    private final DateRangeCreationService dateRangeCreationService;
 
     private void writeDeliveryNoteExcel(XSSFWorkbook workbook, LocalDate startDate, LocalDate endDate) {
         List<OrderComposition> orderCompositions = getOrderCompositions(startDate, endDate);
@@ -70,32 +71,32 @@ public class OrderCompositionExcelServiceImpl implements OrderCompositionExcelSe
 
         titleStyle.setFont(titleFont);
 
-        excelCellService.createDateRangeRow(startDate, endDate, dateStyle, sheet, 2);
+        dateRangeCreationService.createDateRangeRow(startDate, endDate, dateStyle, sheet, 2);
         createHeaderRow(titleStyle);
         createTableHeaderRow(tableHeaderStyle);
     }
 
     private void createHeaderRow(CellStyle titleStyle) {
         Row headerRow = sheet.createRow(0);
-        excelCellService.createOrderCell(headerRow, 0, "ТОВАРНАЯ НАКЛАДНАЯ", titleStyle, sheet);
+        cellCreationService.createCell(headerRow, 0, "ТОВАРНАЯ НАКЛАДНАЯ", titleStyle, sheet);
     }
 
     private void createTableHeaderRow(CellStyle tableHeaderStyle) {
         Row tableHeaderRow = sheet.createRow(3);
-        excelCellService.createOrderCell(tableHeaderRow, 0, "№", tableHeaderStyle, sheet);
-        excelCellService.createOrderCell(tableHeaderRow, 1, "Наименование", tableHeaderStyle, sheet);
-        excelCellService.createOrderCell(tableHeaderRow, 2, "Количество", tableHeaderStyle, sheet);
-        excelCellService.createOrderCell(tableHeaderRow, 3, "Цена", tableHeaderStyle, sheet);
-        excelCellService.createOrderCell(tableHeaderRow, 4, "Сумма", tableHeaderStyle, sheet);
+        cellCreationService.createCell(tableHeaderRow, 0, "№", tableHeaderStyle, sheet);
+        cellCreationService.createCell(tableHeaderRow, 1, "Наименование", tableHeaderStyle, sheet);
+        cellCreationService.createCell(tableHeaderRow, 2, "Количество", tableHeaderStyle, sheet);
+        cellCreationService.createCell(tableHeaderRow, 3, "Цена", tableHeaderStyle, sheet);
+        cellCreationService.createCell(tableHeaderRow, 4, "Сумма", tableHeaderStyle, sheet);
     }
 
     private void createOrderRow(OrderComposition orderComposition, int rowCount, int rowId, CellStyle tableStyle) {
         Row row = sheet.createRow(rowCount);
-        excelCellService.createOrderCell(row, 0, rowId, tableStyle, sheet);
-        excelCellService.createOrderCell(row, 1, orderComposition.getProduct().getTitle(), tableStyle, sheet);
-        excelCellService.createOrderCell(row, 2, orderComposition.getQuantity(), tableStyle, sheet);
-        excelCellService.createOrderCell(row, 3, orderComposition.getProduct().getCost(), tableStyle, sheet);
-        excelCellService.createOrderCell(row, 4, (orderComposition.getProduct().getCost() * orderComposition.getQuantity()), tableStyle, sheet);
+        cellCreationService.createCell(row, 0, rowId, tableStyle, sheet);
+        cellCreationService.createCell(row, 1, orderComposition.getProduct().getTitle(), tableStyle, sheet);
+        cellCreationService.createCell(row, 2, orderComposition.getQuantity(), tableStyle, sheet);
+        cellCreationService.createCell(row, 3, orderComposition.getProduct().getCost(), tableStyle, sheet);
+        cellCreationService.createCell(row, 4, (orderComposition.getProduct().getCost() * orderComposition.getQuantity()), tableStyle, sheet);
     }
 
     private void createAuthorFooter(XSSFWorkbook workbook, int rowCount, XSSFFont textFont) {
@@ -103,7 +104,7 @@ public class OrderCompositionExcelServiceImpl implements OrderCompositionExcelSe
         authorStyle.setFont(textFont);
 
         Row footerRow = sheet.createRow(rowCount + 1);
-        excelCellService.createOrderCell(footerRow, 0, "Составил" + "_".repeat(20), authorStyle, sheet);
+        cellCreationService.createCell(footerRow, 0, "Составил" + "_".repeat(20), authorStyle, sheet);
     }
 
     @Override
