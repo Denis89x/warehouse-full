@@ -1,5 +1,6 @@
-package dev.lebenkov.warehouse.api.service;
+package dev.lebenkov.warehouse.api.service.excel;
 
+import dev.lebenkov.warehouse.api.service.OrderCompositionQueryService;
 import dev.lebenkov.warehouse.storage.model.OrderComposition;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,6 +28,8 @@ public class OrderCompositionExcelServiceImpl implements OrderCompositionExcelSe
     private final StylizeExcelService stylizeExcelService;
     private final CellCreationService cellCreationService;
     private final DateRangeCreationService dateRangeCreationService;
+    private final FooterCreationService footerCreationService;
+    private final WorkbookValidation workbookValidation;
 
     private void writeDeliveryNoteExcel(XSSFWorkbook workbook, LocalDate startDate, LocalDate endDate) {
         List<OrderComposition> orderCompositions = getOrderCompositions(startDate, endDate);
@@ -45,7 +48,7 @@ public class OrderCompositionExcelServiceImpl implements OrderCompositionExcelSe
             createOrderRow(orderComposition, rowCount++, rowId++, tableStyle);
         }
 
-        createAuthorFooter(workbook, rowCount, textFont);
+        footerCreationService.createAuthorFooter(workbook, rowCount, textFont, sheet);
     }
 
     private List<OrderComposition> getOrderCompositions(LocalDate startDate, LocalDate endDate) {
@@ -53,10 +56,8 @@ public class OrderCompositionExcelServiceImpl implements OrderCompositionExcelSe
     }
 
     private void createDeliveryNoteSheet(XSSFWorkbook workbook, LocalDate startDate, LocalDate endDate) {
-        int index = workbook.getSheetIndex("Delivery Note");
-        if (index != -1) {
-            workbook.removeSheetAt(index);
-        }
+        workbookValidation.checkWorkbookWithSameName(workbook, "Delivery Note");
+
         sheet = workbook.createSheet("Delivery Note");
 
         CellStyle dateStyle = stylizeExcelService.stylizeLabel(workbook, (byte) 2, (byte) 2, (byte) 0, (byte) 4, false, sheet);
@@ -97,14 +98,6 @@ public class OrderCompositionExcelServiceImpl implements OrderCompositionExcelSe
         cellCreationService.createCell(row, 2, orderComposition.getQuantity(), tableStyle, sheet);
         cellCreationService.createCell(row, 3, orderComposition.getProduct().getCost(), tableStyle, sheet);
         cellCreationService.createCell(row, 4, (orderComposition.getProduct().getCost() * orderComposition.getQuantity()), tableStyle, sheet);
-    }
-
-    private void createAuthorFooter(XSSFWorkbook workbook, int rowCount, XSSFFont textFont) {
-        CellStyle authorStyle = stylizeExcelService.stylizeLabel(workbook, (byte) rowCount, (byte) rowCount, (byte) 0, (byte) 4, false, sheet);
-        authorStyle.setFont(textFont);
-
-        Row footerRow = sheet.createRow(rowCount + 1);
-        cellCreationService.createCell(footerRow, 0, "Составил" + "_".repeat(20), authorStyle, sheet);
     }
 
     @Override

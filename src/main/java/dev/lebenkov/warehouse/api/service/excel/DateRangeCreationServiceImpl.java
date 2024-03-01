@@ -1,4 +1,4 @@
-package dev.lebenkov.warehouse.api.service;
+package dev.lebenkov.warehouse.api.service.excel;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +22,6 @@ public class DateRangeCreationServiceImpl implements DateRangeCreationService {
     @Override
     public void createDateRangeRow(LocalDate startDate, LocalDate endDate, CellStyle dateStyle, XSSFSheet sheet, Integer rowIndex) {
         Row dateRow = sheet.createRow(rowIndex);
-        cellCreationService.createCell(dateRow, 0, "от " + startDate + " до " + endDate, dateStyle, sheet);
+        cellCreationService.createCell(dateRow, 0, "Период: " + startDate + " - " + endDate, dateStyle, sheet);
     }
 }
