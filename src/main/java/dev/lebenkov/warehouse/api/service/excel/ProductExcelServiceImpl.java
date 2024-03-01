@@ -1,5 +1,6 @@
-package dev.lebenkov.warehouse.api.service;
+package dev.lebenkov.warehouse.api.service.excel;
 
+import dev.lebenkov.warehouse.api.service.ProductQueryService;
 import dev.lebenkov.warehouse.storage.dto.ProductResponse;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;

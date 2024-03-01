@@ -1,7 +1,7 @@
 package dev.lebenkov.warehouse.api.controller;
 
 import dev.lebenkov.warehouse.api.service.ProductCRUDService;
-import dev.lebenkov.warehouse.api.service.ProductExcelService;
+import dev.lebenkov.warehouse.api.service.excel.ProductExcelService;
 import dev.lebenkov.warehouse.api.service.ProductQueryService;
 import dev.lebenkov.warehouse.storage.dto.ProductRequest;
 import dev.lebenkov.warehouse.storage.dto.ProductResponse;

@@ -1,4 +1,4 @@
-package dev.lebenkov.warehouse.api.service;
+package dev.lebenkov.warehouse.api.service.excel;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

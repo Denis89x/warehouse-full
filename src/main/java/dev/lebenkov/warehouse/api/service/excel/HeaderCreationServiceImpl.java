@@ -1,4 +1,4 @@
-package dev.lebenkov.warehouse.api.service;
+package dev.lebenkov.warehouse.api.service.excel;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

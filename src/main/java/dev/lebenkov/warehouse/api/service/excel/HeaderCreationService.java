@@ -1,4 +1,4 @@
-package dev.lebenkov.warehouse.api.service;
+package dev.lebenkov.warehouse.api.service.excel;
 
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
