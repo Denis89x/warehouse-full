@@ -26,6 +26,7 @@ public class OrderExcelServiceImpl implements OrderExcelService {
     private final CellCreationService cellCreationService;
     private final FooterCreationService footerCreationService;
     private final HeaderCreationService headerCreationService;
+    private final WorkbookValidation workbookValidation;
 
     private XSSFSheet sheet;
 
@@ -35,7 +36,7 @@ public class OrderExcelServiceImpl implements OrderExcelService {
     private static final int PRODUCTS_COLUMN_WIDTH = 10000;
 
     private void createHeaderTitles(XSSFWorkbook workbook, String[] headerTitles) {
-        headerCreationService.createExcelHeaderInfo(workbook, headerTitles, sheet);
+        headerCreationService.createExcelHeaderInfo(workbook, headerTitles, sheet, (byte) 7);
     }
 
     private void createTableHeaderRow(CellStyle tableHeaderStyle) {
@@ -44,7 +45,7 @@ public class OrderExcelServiceImpl implements OrderExcelService {
     }
 
     private void writeOrderHeader(XSSFWorkbook workbook, LocalDate startDate, LocalDate endDate) {
-        checkWorkbookWithSameName(workbook);
+        workbookValidation.checkWorkbookWithSameName(workbook, "Order");
 
         String[] headerTitles = {"Отчёт о движении продуктов", "Период: " + startDate + " - " + endDate, "Складской учёт", "Адрес: Гомель, ул. Ильича 2"};
 
@@ -94,7 +95,7 @@ public class OrderExcelServiceImpl implements OrderExcelService {
     }
 
     private void writeExcel(XSSFWorkbook workbook, Long orderId) {
-        checkWorkbookWithSameName(workbook);
+        workbookValidation.checkWorkbookWithSameName(workbook, "Order");
 
         sheet = workbook.createSheet("Order");
 
@@ -122,14 +123,6 @@ public class OrderExcelServiceImpl implements OrderExcelService {
     @Override
     public void generateOrderExcel(HttpServletResponse response, Long orderId) throws IOException {
         generateExcel(response, null, null, null, orderId);
-    }
-
-    private void checkWorkbookWithSameName(XSSFWorkbook workbook) {
-        int index = workbook.getSheetIndex("Order");
-
-        if (index != -1) {
-            workbook.removeSheetAt(index);
-        }
     }
 
     private void generateExcel(HttpServletResponse response, LocalDate startDate, LocalDate endDate, Long supplierId, Long orderId) throws IOException {

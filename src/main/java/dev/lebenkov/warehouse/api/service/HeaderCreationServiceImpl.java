@@ -34,10 +34,10 @@ public class HeaderCreationServiceImpl implements HeaderCreationService {
     }
 
     @Override
-    public void createExcelHeaderInfo(XSSFWorkbook workbook, String[] titleColumns, XSSFSheet sheet) {
+    public void createExcelHeaderInfo(XSSFWorkbook workbook, String[] titleColumns, XSSFSheet sheet, byte columnEndIndex) {
         for (int i = 0; i < titleColumns.length; i++) {
             Row row = sheet.createRow(i);
-            CellStyle style = stylizeExcelService.stylizeLabel(workbook, (byte) i, (byte) i, (byte) 0, (byte) 7, false, sheet);
+            CellStyle style = stylizeExcelService.stylizeLabel(workbook, (byte) i, (byte) i, (byte) 0, columnEndIndex, false, sheet);
 
             cellCreationService.createCell(row, 0, titleColumns[i], style, sheet);
         }
