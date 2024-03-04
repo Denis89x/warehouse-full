@@ -17,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@ToString
 public class Account {
 
     @Id
@@ -41,9 +42,11 @@ public class Account {
     @Column(name = "role")
     private String role;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "account")
     private List<Token> tokens;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     private List<Order> orders = new ArrayList<>();
 }
