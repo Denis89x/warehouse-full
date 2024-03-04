@@ -42,6 +42,7 @@ public class Supplier {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "supplier", fetch = FetchType.EAGER)
     private List<Order> orders = new ArrayList<>();
 }
