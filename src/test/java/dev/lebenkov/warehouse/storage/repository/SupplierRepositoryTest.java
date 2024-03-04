@@ -17,7 +17,7 @@ import java.util.List;
 class SupplierRepositoryTest {
 
     @Autowired
-    SupplierRepository supplierRepository;
+    private SupplierRepository supplierRepository;
 
     @Test
     public void SupplierRepository_FindSimilarSupplier_ReturnSimilarSuppliers() {
