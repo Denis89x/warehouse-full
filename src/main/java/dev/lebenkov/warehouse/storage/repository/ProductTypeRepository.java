@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface ProductTypeRepository extends JpaRepository<ProductType, Long> {
 
-    @Query("SELECT pt FROM ProductType pt WHERE pt.name LIKE %:searchTerm% ORDER BY similarity(pt.name, :searchTerm) DESC")
+    @Query("SELECT pt FROM ProductType pt WHERE pt.name LIKE %:searchTerm%")
     List<ProductType> findSimilarProductTypes(String searchTerm);
 }
