@@ -6,18 +6,15 @@ import dev.lebenkov.warehouse.storage.dto.AuthResponse;
 import dev.lebenkov.warehouse.storage.dto.RegistrationRequest;
 import dev.lebenkov.warehouse.storage.model.Account;
 import dev.lebenkov.warehouse.storage.repository.AccountRepository;
-import dev.lebenkov.warehouse.storage.repository.TokenRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -29,19 +26,10 @@ class AuthServiceImpTest {
     private AccountRepository accountRepository;
 
     @Mock
-    private TokenRepository tokenRepository;
-
-    @Mock
     private AccountDetailsService accountDetailsService;
 
     @Mock
     private JwtUtil jwtUtil;
-
-    @Mock
-    private AuthenticationManager authenticationManager;
-
-    @Mock
-    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private AuthServiceImp authService;

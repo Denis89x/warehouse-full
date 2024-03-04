@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface StoreRepository extends JpaRepository<Store, Long> {
 
-    @Query("SELECT s FROM Store s WHERE s.name LIKE %:keyword% ORDER BY similarity(s.name, :keyword) DESC")
+    @Query("SELECT s FROM Store s WHERE s.name LIKE %:keyword%")
     List<Store> findSimilarStore(String keyword);
 }
