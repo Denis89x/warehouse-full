@@ -81,4 +81,52 @@ class ProductRepositoryTest {
         Assertions.assertThat(productsByCost.size()).isEqualTo(3);
         Assertions.assertThat(productsByPresence.size()).isEqualTo(3);
     }
+
+    @Test
+    public void ProductRepository_FindByDateRange_ReturnProductList() {
+        // Arrange
+        ProductType productType = ProductType.builder()
+                .name("product")
+                .build();
+
+        Product product1 = Product.builder()
+                .title("title1")
+                .date(LocalDate.now().minusDays(5))
+                .presence(0)
+                .cost(1)
+                .description("desc1")
+                .productType(productType)
+                .build();
+
+        Product product2 = Product.builder()
+                .title("title2")
+                .date(LocalDate.now())
+                .presence(0)
+                .cost(1)
+                .description("desc2")
+                .productType(productType)
+                .build();
+
+        Product product3 = Product.builder()
+                .title("product")
+                .date(LocalDate.now().plusDays(10))
+                .presence(0)
+                .cost(1)
+                .description("description")
+                .productType(productType)
+                .build();
+
+        // Act
+        productTypeRepository.save(productType);
+
+        productRepository.save(product1);
+        productRepository.save(product2);
+        productRepository.save(product3);
+
+        List<Product> products = productRepository.findByDateRange(LocalDate.now().minusDays(6), LocalDate.now().plusDays(1));
+
+        // Assert
+        Assertions.assertThat(products).isNotNull();
+        Assertions.assertThat(products.size()).isEqualTo(2);
+    }
 }
