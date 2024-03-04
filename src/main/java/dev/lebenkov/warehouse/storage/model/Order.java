@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class Order {
 
     @Id
@@ -30,18 +31,22 @@ public class Order {
     @Column(name = "amount")
     private Integer amount;
 
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
 
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "supplier_id")
     private Supplier supplier;
 
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "store_id")
     private Store store;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "order", fetch = FetchType.EAGER)
     private List<OrderComposition> orderCompositions = new ArrayList<>();
 }
