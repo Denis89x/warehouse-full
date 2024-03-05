@@ -95,4 +95,11 @@ public class ErrorHandlingControllerAdvice {
     public String onEmptyOrderCompositionException(EmptyOrderCompositionException e) {
         return e.getMessage();
     }
+
+    @ResponseBody
+    @ExceptionHandler(InvalidValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String onValidationException(InvalidValidationException e) {
+        return e.getMessage();
+    }
 }
