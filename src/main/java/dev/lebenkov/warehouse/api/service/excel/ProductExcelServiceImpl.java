@@ -24,6 +24,7 @@ public class ProductExcelServiceImpl implements ProductExcelService {
     private XSSFSheet sheet;
 
     private final StylizeExcelService stylizeExcelService;
+    private final WorkbookValidation workbookValidation;
     private final ProductQueryService productQueryService;
     private final HeaderCreationService headerCreationService;
     private final FooterCreationService footerCreationService;
@@ -56,10 +57,8 @@ public class ProductExcelServiceImpl implements ProductExcelService {
     }
 
     private void createProductSheet(XSSFWorkbook workbook, LocalDate startDate, LocalDate endDate) {
-        int index = workbook.getSheetIndex("Product");
-        if (index != -1) {
-            workbook.removeSheetAt(index);
-        }
+        workbookValidation.checkWorkbookWithSameName(workbook, "Product");
+
         sheet = workbook.createSheet("Product");
 
         CellStyle dateStyle = stylizeExcelService.stylizeDateRow(workbook, (byte) 2, (byte) 2, (byte) 0, (byte) 6, sheet);

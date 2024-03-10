@@ -7,10 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,7 +19,7 @@ public class AccountController {
 
     public static final String CHANGE_PASSWORD = "/change-password";
 
-    @PostMapping(CHANGE_PASSWORD)
+    @PatchMapping(CHANGE_PASSWORD)
     public ResponseEntity<String> changeAccountPassword(@RequestBody ChangePasswordRequest changePasswordRequest) {
         accountCredentialsService.changePassword(changePasswordRequest);
         return new ResponseEntity<>("Password was successfully changed!", HttpStatus.OK);

@@ -1,6 +1,7 @@
 package dev.lebenkov.warehouse.api.controller;
 
 import dev.lebenkov.warehouse.api.service.ProductCRUDService;
+import dev.lebenkov.warehouse.api.service.excel.ProductChartExcel;
 import dev.lebenkov.warehouse.api.service.excel.ProductExcelService;
 import dev.lebenkov.warehouse.api.service.ProductQueryService;
 import dev.lebenkov.warehouse.storage.dto.ProductRequest;
@@ -32,10 +33,12 @@ public class ProductController {
     ProductCRUDService productCRUDService;
     ProductQueryService productQueryService;
     ProductExcelService productExcelService;
+    ProductChartExcel productChartExcel;
 
     private final static String PRODUCT_ID = "/{productId}";
     private final static String PRODUCT_FIELD = "/search/{productField}";
     private final static String PRODUCT_FILTRATE = "/filter";
+    private final static String PRODUCT_CHART = "/excel-chart";
 
     private final static String GENERATE_PRODUCT_BALANCE_EXCEL = "/excel-product";
 
@@ -84,5 +87,12 @@ public class ProductController {
                            @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
                            HttpServletResponse response) throws IOException {
         productExcelService.generateProductBalanceExcel(response, startDate, endDate);
+    }
+
+    @GetMapping(PRODUCT_CHART)
+    public void generateProductChartExcel(@RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+                                          @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+                                          HttpServletResponse response) throws IOException {
+        productChartExcel.generateProductChartExcel(response, startDate, endDate);
     }
 }
